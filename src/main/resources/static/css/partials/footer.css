@@ -1,0 +1,19 @@
+.footer {
+    grid-column: 1 / 4;
+    background-color: #242424;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.footer--content {
+    width: 800px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+}

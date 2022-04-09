@@ -1,0 +1,73 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Listen Together</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/css/partials/main.css">
+    <link rel="stylesheet" type="text/css" href="/fa/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/css/lobby.css">
+</head>
+<body>
+<div class="wrapper">
+    <header class="header" th:insert="blocks/header :: header"></header>
+
+    <main class="main">
+        <div class="main--users">
+            <h3 class="main--header">Пользователи</h3>
+            <ul class="main--users_list" id="userList">
+                <li th:each="user : ${lobby.users}" class="main--users_list--item" th:id="${'user//id=' + user.id}">
+                    <div class="main--users_list--item--username" th:text="${user.name}"></div>
+
+                    <div class="main--users_list--item--buttons">
+                        <div class="users_list--item--mutebutton" th:switch="${user.state}">
+                            <i th:case="LISTENING" class="fa-solid fa-volume-high main--users_list--item--buttons--item"></i>
+                            <i th:case="MUTED" class="fa-solid fa-volume-xmark main--users_list--item--buttons--item"></i>
+                            <i th:case="DISCONNECTED" class="fa-solid fa-person-walking-arrow-right main--users_list--item--buttons--item"></i>
+                            <i th:case="*" class="fa-solid fa-person-walking-arrow-right main--users_list--item--buttons--item"></i>
+                        </div>
+                        <div class="users_list--item--kickbutton"><i class="fa-solid fa-door-open"></i></div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main--songs">
+            <div class="songs--list--wrapper" th:insert="blocks/songs-list :: songs-list"></div>
+            <div class="songs_list--top">
+                <h3 class="songs_list--top--author">Автор</h3>
+                <h3 class="songs_list--top--song">Название</h3>
+                <h3 class="songs_list--top--album">Альбом</h3>
+                <h3 class="songs_list--top--views">Прослушивания</h3>
+            </div>
+            <ul class="main--songs_list" id="songList">
+                <li th:each="songl : ${lobby.songsList}" class="main--songs_list--item">
+                    <button class="songs_list--item--play"><i class="fa-solid fa-play"></i></button>
+                    <div th:text="'автор имя'" class="songs_list--item--author"></div>
+                    <div th:text="'песня имя'" class="songs_list--item--song"></div>
+                    <div th:text="'альбом имя'" class="songs_list--item--album"></div>
+                    <div th:text="'0'" class="songs_list--item--views">Прослушивания</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main--controller">
+            <h3 class="main--header">Управление</h3>
+            <div class="controller--item">
+                <div class="controller--lobby_id">
+                    <input onclick="copyCode()" id="codeInput" class="controller--lobby_id--input" type="text" placeholder="ID Лобби" maxlength="6" th:value="${lobby.code}" readonly>
+                </div>
+                <div class="controller--leave">
+                    <i class="controller--button fa-solid fa-right-from-bracket"></i>
+                </div>
+            </div>
+        </div>
+    </main>
+    <player th:insert="blocks/player :: player"></player>
+    <footer class="footer" th:insert="blocks/footer :: footer"></footer>
+</div>
+<div hidden id="lobbyId" th:text="${lobby.code}"></div>
+<div th:insert="blocks/scripts :: scripts"></div>
+
+<script type="text/javascript" src="/js/lobby.js"></script>
+</body>
+</html>

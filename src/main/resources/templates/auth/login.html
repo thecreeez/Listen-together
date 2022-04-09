@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Listen Together</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/fa/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/css/partials/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/auth.css">
+</head>
+<body>
+<div class="wrapper">
+    <header class="header" th:insert="blocks/header :: header"></header>
+
+    <main class="main">
+        <h1 class="auth--center auth--header">Авторизация</h1>
+        <form action="/post/login" method="post">
+            <input type="text" name="username" placeholder="Имя" class="auth--input">
+            <input type="password" name="password" placeholder="Пароль" class="auth--input">
+            <button type="submit" class="auth--button">Войти</button>
+            <a href="/auth/register" class="auth--center">Регистрация</a>
+        </form>
+    </main>
+
+    <footer class="footer" th:insert="blocks/footer :: footer"></footer>
+</div>
+
+</body>
+</html>

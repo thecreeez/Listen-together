@@ -1,0 +1,37 @@
+.main {
+    background-color: #242424;
+}
+
+.main--lobby {
+    grid-column: 2 / 3;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    height: 70px;
+}
+
+.lobby--input {
+    font-size: 40px;
+    width: 300px;
+    text-transform: uppercase;
+
+    font-family: 'Roboto', sans-serif;
+}
+
+.lobby--btn {
+    font-size: 40px;
+    width: 100px;
+    background-color: rgba(0,0,0,0);
+    border: solid;
+    border-color: white;
+    color: white;
+
+    font-family: 'Roboto', sans-serif;
+}
+
+.main--info {
+    color: #aeaeae;
+    grid-column: 2 / 3;
+    text-align: center;
+}

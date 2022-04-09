@@ -1,0 +1,41 @@
+.main {
+    grid-template-rows: 1fr minmax(30px, 50px) minmax(150px, 200px) 1fr;
+    grid-template-columns: minmax(40px,500px) 300px minmax(40px,500px);
+}
+
+form {
+    grid-column: 2 / 3;
+    grid-row: 3/4;
+    display: grid;
+    grid-template-columns: 300px;
+}
+
+.auth--header {
+    grid-column: 2/3;
+    grid-row: 2/3;
+    padding: 0px;
+    margin: 0px;
+    text-align: center;
+}
+
+.auth--input {
+    width: 100%;
+    height: 40px;
+
+    box-sizing: border-box;
+
+    font-family: 'Roboto', sans-serif;
+
+    font-size: 1.2em;
+}
+
+.auth--button {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+
+    font-size: 1.25em;
+}
+
+.auth--center {
+    text-align: center;
+}

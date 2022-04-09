@@ -1,0 +1,123 @@
+.main {
+    align-content: normal;
+    grid-template-columns: 1fr 3fr 1fr;
+}
+
+.main--users {
+    background-color: #373737;
+    padding: 10px;
+}
+
+.main--users_list {
+
+}
+
+.main--users_list--item {
+    margin-left: 5px;
+    margin-bottom: 5px;
+    display: grid;
+
+    grid-template-columns: 2fr 1fr;
+}
+
+.main--users_list--item--buttons {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 1.3em;
+}
+
+.main--users_list--item--buttons--item {
+    margin: 3px;
+}
+
+.main--songs {
+    background-color: #242424;
+    padding: 10px;
+}
+
+.songs_list--top {
+    grid-column: 2/3;
+    display: grid;
+    grid-template-columns: 2fr 3fr 2fr 2fr;
+    margin-left: 30px;
+    text-align: left;
+}
+
+.main--songs_list {
+    grid-column: 2/3;
+    padding: 0px;
+    margin: 0px;
+    text-align: left;
+}
+
+.main--songs_list--item {
+    display: grid;
+    grid-template-columns: 30px 2fr 3fr 2fr 2fr;
+    margin-bottom: 5px;
+}
+
+.songs_list--item--play {
+    padding: 0px;
+    margin: 0px 10px 0px 0px;
+    background-color: rgba(0,0,0,0);
+    border-style: none;
+    color: white;
+
+    font-size: 1.15em;
+}
+
+.songs_list--item--album {
+    color: #868686;
+}
+
+.songs_list--item--views {
+    color: #868686;
+}
+
+.main--controller {
+    background-color: #373737;
+    padding: 10px;
+    text-align: center;
+}
+
+.controller--item {
+    display: flex;
+    justify-content: center
+}
+
+.controller--lobby_id--input {
+    width: 80%;
+    height: 40px;
+    font-size: 2em;
+}
+
+.controller--leave {
+    display: flex;
+    align-items: center
+}
+
+.controller--button {
+    font-size: 2.5em;
+}
+
+.main ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+
+.songs--list--wrapper {
+    height: 100%;
+    background-color: green;
+}
+
+
+input:focus{
+    outline:none;
+}
+
+h3 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

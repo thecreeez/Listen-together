@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Listen Together</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/fa/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/css/partials/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+</head>
+<body>
+<div class="wrapper">
+    <header class="header" th:insert="blocks/header :: header"></header>
+
+    <main class="main">
+        <div class="main--lobby">
+            <input class="lobby--input" placeholder="ID Лобби" type="text" maxlength="6">
+            <button class="lobby--btn">GO</button>
+        </div>
+
+        <div class="main--info">
+            <p>Для создания лобби оставьте поле пустым</p>
+            <p th:text="${'Лобби: ' + lobbies + ' Песен: ' + songs + ' Пользователи: ' + users}"></p>
+        </div>
+    </main>
+
+    <player th:insert="blocks/player :: player"></player>
+    <footer class="footer" th:insert="blocks/footer :: footer"></footer>
+</div>
+
+<div th:insert="blocks/scripts :: scripts"></div>
+</body>
+</html>

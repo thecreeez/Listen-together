@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap');
+
+body {
+    margin: 0px;
+    min-height: 100vh;
+
+
+    background-color: #161616;
+    font-family: 'Roboto', sans-serif;
+    color: white;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-rows: 82px 1fr;
+    grid-template-columns: minmax(30px,200px) minmax(900px, 1fr) minmax(30px,200px);
+    height: 90vh;
+}
+
+.main {
+    grid-column: 2 / 3;
+    margin: 10px;
+    padding: 10px;
+    height: 100%;
+
+    display: grid;
+    grid-template-columns: minmax(40px,500px) 1fr minmax(40px,500px);
+    align-content: center
+}
+
+.unselectable {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           /* Non-prefixed version, currently not supported by any browser */
+}
+
+a {
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: none;
+}
+
+input:focus{
+    outline:none;
+}

@@ -1,0 +1,23 @@
+<link rel="stylesheet" type="text/css" href="/css/partials/header.css" th:fragment="header">
+<a href="/" class="header--logo unselectable" th:fragment="header">
+    Listen Together
+</a>
+<div class="header--menu unselectable" th:fragment="header">
+    <ul class="header--menu--content">
+        <li th:if="${false}" class="header--menu--option option--lobby">
+            <a th:href="${'/lobby/' + lobbyCookie}"><i class="fa-solid fa-people-roof"></i></a>
+        </li>
+        <li class="header--menu--option option--upload">
+            <a href="/upload"><i class="fa-solid fa-upload"></i></a>
+        </li>
+        <li class="header--menu--option option--login">
+            <a href="/auth/login" th:if="${username == 'null'}">Войти</a>
+            <div class="profile" th:unless="${username == 'null'}">
+                <div th:text="${username}" class="profile--btn"></div>
+                <div class="profile--content">
+                    <a href="/auth/leave">Выйти</a>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>

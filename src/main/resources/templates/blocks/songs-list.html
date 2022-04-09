@@ -1,0 +1,28 @@
+<div th:fragment="songs-list">
+    <header class="songs--list--header">
+        <div class="songs--header--find">Поиск</div>
+        <div class="songs--header--filter">Фильтр</div>
+    </header>
+
+    <div class="songs--list--body">
+        Результат: Найдено: 0
+        <ul class="songs--list--body--list">
+            <li class="songs--list--result result--author">
+                <div class="list--result--header">Исполнитель</div>
+                <div class="list--result--name">Джизус</div>
+            </li>
+
+            <li class="songs--list--result result--song">
+                <div class="list--result--author">Джизус</div>
+                <div class="list--result--name">Регенерация</div>
+                <div class="list--result--album">Альбом</div>
+                <div class="list--result--add">+</div>
+            </li>
+
+            <li class="songs--list--result result--album">
+                <div class="list--result--name">Альбом</div>
+                <div class="list--result--author">Джизус</div>
+            </li>
+        </ul>
+    </div>
+</div>
