@@ -8,25 +8,69 @@
     <link rel="stylesheet" type="text/css" href="/css/index.css">
 </head>
 <body>
-<div class="wrapper">
-    <header class="header" th:insert="blocks/header :: header"></header>
+<div class="wrapper" id="app">
+    <header class="header">
+        <link rel="stylesheet" type="text/css" href="/css/partials/header.css">
+        <router-link to="/" class="header--logo unselectable">
+            Listen Together
+        </router-link>
+        <div class="header--menu unselectable">
+            <ul class="header--menu--content">
+                <li class="header--menu--option option--lobby">
+                    <router-link to="/lobby/AAAAAA"><i class="fa-solid fa-people-roof"></i></router-link>
+                </li>
+                <li class="header--menu--option option--upload">
+                    <router-link to="/upload"><i class="fa-solid fa-upload"></i></router-link>
+                </li>
+                <li class="header--menu--option option--login">
+                    <router-link to="/auth/login"> {{ profileText }} </router-link>
+                    <!--div class="profile" th:unless="${username == 'null'}">
+                        <div th:text="${username}" class="profile--btn"></div>
+                        <div class="profile--content">
+                            <router-link to="/auth/leave">Выйти</router-link>
+                        </div>
+                    </div -->
+                </li>
+            </ul>
+        </div>
+    </header>
 
     <main class="main">
-        <div class="main--lobby">
-            <input class="lobby--input" placeholder="ID Лобби" type="text" maxlength="6">
-            <button class="lobby--btn">GO</button>
-        </div>
-
-        <div class="main--info">
-            <p>Для создания лобби оставьте поле пустым</p>
-            <p th:text="${'Лобби: ' + lobbies + ' Песен: ' + songs + ' Пользователи: ' + users}"></p>
-        </div>
+        <router-view></router-view>
     </main>
 
-    <player th:insert="blocks/player :: player"></player>
-    <footer class="footer" th:insert="blocks/footer :: footer"></footer>
+    <footer class="footer">
+        <link rel="stylesheet" type="text/css" href="/css/partials/footer.css">
+        <ul class="footer--content">
+            <li class="footer--content--option">
+                CLOSER TO FRIENDS
+            </li>
+            <li class="footer--content--option">
+                NON-COMMERCIAL SITE
+            </li>
+            <li class="footer--content--option">
+                WE ARE USING COOKIES
+            </li>
+        </ul>
+    </footer>
 </div>
 
-<div th:insert="blocks/scripts :: scripts"></div>
+<player th:insert="blocks/player :: player"></player>
+
+<div hidden>
+    <p id="lobbies" th:text="${lobbies}"></p>
+    <p id="songs" th:text="${songs}"></p>
+    <p id="users" th:text="${users}"></p>
+    <p id="username" th:text="${username}"></p>
+</div>
+
+<script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
+<script src="https://unpkg.com/vue-router@4.0.14/dist/vue-router.global.js"></script>
+
+<script src="/routes/index.js"></script>
+<script src="/routes/auth.js"></script>
+
+<script src="/js/routing.js"></script>
+<!--div th:insert="blocks/scripts :: scripts"></div -->
 </body>
 </html>
