@@ -1,8 +1,13 @@
-.main {
+.main--index {
+    height: 100%;
     background-color: #242424;
+
+    display: grid;
+    grid-template-columns: minmax(40px,500px) 1fr minmax(40px,500px);
+    align-content: center;
 }
 
-.main--lobby {
+.main--index--lobby {
     grid-column: 2 / 3;
     width: 100%;
     display: flex;

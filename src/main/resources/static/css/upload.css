@@ -1,5 +1,10 @@
-.main {
+.main--upload {
     grid-template-columns: 1fr 300px 1fr;
+    height: 100%;
+    background-color: #242424;
+
+    display: grid;
+    align-content: center;
 }
 
 .upload--header {

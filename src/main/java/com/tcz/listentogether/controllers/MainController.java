@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -31,34 +33,31 @@ public class MainController {
                         @CookieValue(value = "lastLobby", defaultValue = "null")String lastLobby,
                         @CookieValue(value = "token", defaultValue = "null")String token
     ) {
-        String username = "null";
+        HashMap<String, String> data = new HashMap<>();
+
+        data.put("isAuth", "false");
 
         if (!token.equals("null")) {
             Optional<User> userOptional = userRepository.findByToken(token);
 
-            if (userOptional != null)
-                username = userOptional.get().getName();
-        }
-        model.addAttribute("username", username);
+            if (userOptional != null) {
+                data.put("username", userOptional.get().getName());
+                data.put("isAuth", "true");
 
-        int lobbies = 0;
-        for (Lobby l: lobbyRepository.findAll()) {
-            lobbies++;
-        }
-        model.addAttribute("lobbies", lobbies);
+                if (userOptional.get().getLobbyId() != null) {
+                    Optional<Lobby> lobbyOptional = lobbyRepository.findById(userOptional.get().getLobbyId());
 
-        int songs = 0;
-        for (Song s: songRepository.findAll()) {
-            songs++;
+                    if (!lobbyOptional.isEmpty()) {
+                        data.put("lobbyCode", lobbyOptional.get().getCode());
+                        data.put("isOnLobby", "true");
+                    }
+                }
+            }
         }
-        model.addAttribute("songs", songs);
 
-        int users = 0;
-        for (User u: userRepository.findAll()) {
-            users++;
-        }
-        model.addAttribute("users", users);
-        model.addAttribute("lobbyCookie", lastLobby);
+        data.put("testValue", "123");
+
+        model.addAttribute("data", data);
 
         return "index";
     }

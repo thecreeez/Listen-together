@@ -1,5 +1,6 @@
 package com.tcz.listentogether.handler;
 
+import com.tcz.listentogether.enums.UserState;
 import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.User;
 import com.tcz.listentogether.repo.LobbyRepository;
@@ -90,9 +91,19 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
+        user.get().setState(UserState.LISTENING);
         user.get().setSimpSessionId(session.getId());
         userRepository.save(user.get());
         webSocketSessions.put(session.getId(), session);
+
+        if (user.get().getLobbyId() != null) {
+            Optional<Lobby> optionalLobby = lobbyRepository.findById(user.get().getLobbyId());
+
+            if (!optionalLobby.isEmpty()) {
+                UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
+                sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
+            }
+        }
 
         checkSocketConnections();
     }
@@ -101,6 +112,8 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception, IOException {
         super.handleTextMessage(session, message);
         String code = message.getPayload();
+
+        System.out.println("tm is getted!!!!");
 
         Optional<User> user = userRepository.findByToken(getToken(session));
 
@@ -112,6 +125,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         Optional<Lobby> lobby = lobbyRepository.findByCode(code);
 
         if (lobby.isEmpty()) {
+            System.out.println("Лобби пустое!");
             session.close();
             return;
         }
@@ -132,15 +146,15 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         Optional<User> user =  userRepository.findByToken(getToken(session));
 
         if (!user.isEmpty()) {
-            UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-
             webSocketSessions.remove(session.getId());
-            sendToLobby(user.get().getLobbyId(), "disc//"+userConnection.toString());
 
             user.get().setSimpSessionId(null);
-            user.get().setLobbyId(null);
+            user.get().setState(UserState.DISCONNECTED);
 
             userRepository.save(user.get());
+
+            UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
+            sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
         }
     }
 
@@ -178,7 +192,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void checkSocketConnections() throws IOException {
-        Iterable<User> usersInLobby = userRepository.findAll();
+        /*Iterable<User> usersInLobby = userRepository.findAll();
 
         for (User user : usersInLobby) {
             if (user.getLobbyId() != null && !webSocketSessions.containsKey(user.getSimpSessionId())) {
@@ -190,6 +204,6 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                 userRepository.save(user);
             }
-        }
+        }*/
     }
 }

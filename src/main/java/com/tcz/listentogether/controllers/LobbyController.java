@@ -5,17 +5,19 @@ import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.User;
 import com.tcz.listentogether.repo.*;
+import com.tcz.listentogether.response.LobbyDataResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
 
-@Controller
+@RestController
 public class LobbyController {
 
     @Autowired
@@ -33,8 +35,28 @@ public class LobbyController {
     @Autowired
     private UserRepository userRepository;
 
+    @GetMapping("/get/lobbyData")
+    public LobbyDataResponse lobbyData(Model model,
+                                       @CookieValue(value = "token", defaultValue = "nonauth")String token
+    ) {
+        Optional<User> userOptional = userRepository.findByToken(token);
+
+        if (userOptional.isEmpty())
+            return null;
+
+        if (userOptional.get().getLobbyId() == null)
+            return null;
+
+        Optional<Lobby> lobbyOptional = lobbyRepository.findById(userOptional.get().getLobbyId());
+
+        if (lobbyOptional.isEmpty())
+            return null;
+
+        return new LobbyDataResponse(lobbyOptional.get());
+    }
+
     @GetMapping("/lobby/{code}")
-    public String lobby(Model model,
+    public Iterable<Song> lobby(Model model,
                         @CookieValue(value = "token", defaultValue = "nonauth")String token,
                         @PathVariable(value = "code")String code,
                         @CookieValue(value = "lastLobby", defaultValue = "null")String lastLobby
@@ -42,7 +64,7 @@ public class LobbyController {
         Optional<Lobby> lobby = lobbyRepository.findByCode(code.toUpperCase());
 
         if (lobby.isEmpty())
-            return "index";
+            return null;
 
         String username = "null";
         if (!token.equals("null")) {
@@ -64,6 +86,6 @@ public class LobbyController {
 
         model.addAttribute("lobbyCookie", lastLobby);
 
-        return "lobby";
+        return songs;
     }
 }

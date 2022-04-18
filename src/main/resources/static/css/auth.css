@@ -1,6 +1,11 @@
-.main {
+.main--auth {
     grid-template-rows: 1fr minmax(30px, 50px) minmax(150px, 200px) 1fr;
-    grid-template-columns: minmax(40px,500px) 300px minmax(40px,500px);
+    grid-template-columns: minmax(40px,1fr) 300px minmax(40px,1fr);
+    background-color: #242424;
+
+    display: grid;
+    align-content: center;
+    height: 100%;
 }
 
 form {

@@ -4,7 +4,6 @@ body {
     margin: 0px;
     min-height: 100vh;
 
-
     background-color: #161616;
     font-family: 'Roboto', sans-serif;
     color: white;
@@ -20,12 +19,10 @@ body {
 .main {
     grid-column: 2 / 3;
     margin: 10px;
-    padding: 10px;
+    /*padding: 10px;*/
     height: 100%;
 
-    display: grid;
-    grid-template-columns: minmax(40px,500px) 1fr minmax(40px,500px);
-    align-content: center
+    background-color: green;
 }
 
 .unselectable {

@@ -13,9 +13,9 @@ public class Lobby {
     private Long time;
     private boolean isPlaying;
 
-    @OneToOne(targetEntity = SongInQueue.class, cascade = CascadeType.ALL)
-    @JoinColumn(name="id", referencedColumnName = "currentSongId")
-    private SongInQueue currentSong;
+    //@OneToOne(targetEntity = SongInQueue.class, cascade = CascadeType.ALL)
+    //@JoinColumn(name="id", referencedColumnName = "currentSongId")
+    //private SongInQueue currentSong;
 
     @OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
     @JoinColumn(name="lobbyId", referencedColumnName = "id")
@@ -84,11 +84,11 @@ public class Lobby {
         isPlaying = playing;
     }
 
-    public SongInQueue getCurrentSong() {
-        return currentSong;
-    }
+    //public SongInQueue getCurrentSong() {
+    //    return currentSong;
+    //}
 
-    public void setCurrentSong(SongInQueue currentSong) {
-        this.currentSong = currentSong;
-    }
+    //public void setCurrentSong(SongInQueue currentSong) {
+    //    this.currentSong = currentSong;
+    //}
 }
