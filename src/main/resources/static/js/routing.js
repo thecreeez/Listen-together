@@ -11,8 +11,6 @@ const router = VueRouter.createRouter({
     routes
 })
 
-//Vue.config.productionTip = false;
-
 const app = Vue.createApp({
     data() {
         return {
@@ -69,8 +67,7 @@ const app = Vue.createApp({
         },
 
         playstop() {
-            this.isPlaying = !this.isPlaying;
-            console.log("player now "+this.isPlaying);
+            socket.send("pcontrol//playstop");
         }
     }
 });

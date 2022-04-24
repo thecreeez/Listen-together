@@ -3,16 +3,17 @@ package com.tcz.listentogether.handler;
 import com.tcz.listentogether.enums.UserState;
 import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.User;
-import com.tcz.listentogether.repo.LobbyRepository;
-import com.tcz.listentogether.repo.UserRepository;
+import com.tcz.listentogether.repo.*;
 import com.tcz.listentogether.websockets.UserConnection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.persistence.Lob;
 import java.io.IOException;
 import java.util.*;
 
@@ -76,7 +77,19 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
     @Autowired
     public LobbyRepository lobbyRepository;
 
-    private HashMap<String, WebSocketSession> webSocketSessions = new HashMap<>();
+    @Autowired
+    public SongInQueueRepository songInQueueRepository;
+
+    @Autowired
+    public SongRepository songRepository;
+
+    @Autowired
+    public AlbumRepository albumRepository;
+
+    @Autowired
+    public AuthorRepository authorRepository;
+
+    private static HashMap<String, WebSocketSession> webSocketSessions = new HashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -111,9 +124,6 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception, IOException {
         super.handleTextMessage(session, message);
-        String code = message.getPayload();
-
-        System.out.println("tm is getted!!!!");
 
         Optional<User> user = userRepository.findByToken(getToken(session));
 
@@ -122,19 +132,10 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        Optional<Lobby> lobby = lobbyRepository.findByCode(code);
+        String[] args = message.getPayload().split("//");
 
-        if (lobby.isEmpty()) {
-            System.out.println("Лобби пустое!");
-            session.close();
-            return;
-        }
 
-        user.get().setLobbyId(lobby.get().getId());
-        userRepository.save(user.get());
-
-        UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-        sendToLobby(lobby.get().getId(), "conn//"+userConnection.toString());
+        handleCommand(args, session, user.get());
 
         return;
     }
@@ -153,11 +154,86 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
             userRepository.save(user.get());
 
-            UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-            sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
+            if (user.get().getLobbyId() != null) {
+                UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
+                sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
+            }
         }
     }
 
+    private void handleCommand(String[] args, WebSocketSession session, User user) throws IOException {
+        String command = args[0];
+
+        switch (command) {
+            case "conn": {
+                String code = args[1];
+
+                Optional<Lobby> lobby = lobbyRepository.findByCode(code);
+
+                if (lobby.isEmpty()) {
+                    System.out.println("Лобби не найдено!");
+
+                    //Прислать сообщение о том что лобби не найдено
+                    return;
+                }
+
+                System.out.println("Пользователь "+user.getName()+" подключается к лобби с кодом "+code+"...");
+
+                user.setLobbyId(lobby.get().getId());
+                userRepository.save(user);
+
+                UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
+                sendToLobby(lobby.get().getId(), "conn//"+userConnection.toString());
+                break;
+            }
+            case "disc": {
+                System.out.println("Пользователь "+user.getName()+" выходит из лобби...");
+
+                if (user.getLobbyId() == null) {
+                    System.out.println("Нельзя выйти из лобби, пользователь и так в нем не находится");
+                    return;
+                }
+
+                Optional<Lobby> lobby = lobbyRepository.findById(user.getLobbyId());
+
+                user.setLobbyId(null);
+                userRepository.save(user);
+
+                if (!lobby.isEmpty()) {
+                    UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
+                    sendToLobby(lobby.get().getId(), "disc//"+userConnection.toString());
+                }
+                break;
+            }
+            case "pcontrol": {
+                Optional<Lobby> lobby = lobbyRepository.findById(user.getLobbyId());
+
+                if (lobby.isEmpty())
+                    return;
+
+                handlePlayerCommand(args, session, user, lobby.get());
+                break;
+            }
+            default: {
+                System.out.println("Ошибка парсинга команды: Получено:" + command);
+                return;
+            }
+        }
+    }
+
+    private void handlePlayerCommand(String[] args, WebSocketSession session, User user, Lobby lobby) throws IOException {
+        String command = args[1];
+
+        switch (command) {
+            case "playstop": {
+                lobby.setPlaying(!lobby.isPlaying());
+                lobbyRepository.save(lobby);
+
+                sendToLobby(lobby.getId(), "player//isPlaying//"+lobby.isPlaying());
+                break;
+            }
+        }
+    }
 
     private void sendToLobby(long lobbyId, String message) throws IOException {
         Iterable<User> usersInLobby = userRepository.findAllByLobbyId(lobbyId);
@@ -189,6 +265,28 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         }
 
         return token;
+    }
+
+    @Scheduled(fixedRate = 500L)
+    void updateLobbyTime() {
+        System.out.println("updating lobbytime...");
+        Iterable<Lobby> lobbies = lobbyRepository.findAll();
+
+        lobbies.forEach(lobby -> {
+            if (lobby.isPlaying()) {
+                System.out.println(lobby.getCurrentSong().getSong());
+
+                System.out.println(songRepository.findById(lobby.getCurrentSong().getSongId()).get().getName());;
+
+                long currTime = 0;
+
+                if (lobby.getTime() != null)
+                    currTime = lobby.getTime();
+
+                lobby.setTime(currTime+500L);
+                lobbyRepository.save(lobby);
+            }
+        });
     }
 
     private void checkSocketConnections() throws IOException {

@@ -13,7 +13,7 @@ public class SongInQueue {
     private Long lobbyId;
     private Long queuePosition;
 
-    @OneToOne(targetEntity = Song.class, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Song.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="id", referencedColumnName = "songId")
     private Song song;
 
@@ -50,5 +50,13 @@ public class SongInQueue {
 
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
+    }
+
+    public Long getQueuePosition() {
+        return queuePosition;
+    }
+
+    public void setQueuePosition(Long queuePosition) {
+        this.queuePosition = queuePosition;
     }
 }

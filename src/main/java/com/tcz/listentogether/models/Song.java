@@ -67,4 +67,12 @@ public class Song {
     public void setViews(int views) {
         this.views = views;
     }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 }

@@ -1,6 +1,7 @@
 package com.tcz.listentogether.controllers;
 
 import com.tcz.listentogether.enums.UserState;
+import com.tcz.listentogether.handler.LobbyWebSocketHandler;
 import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.User;
@@ -53,6 +54,52 @@ public class LobbyController {
             return null;
 
         return new LobbyDataResponse(lobbyOptional.get());
+    }
+
+    @GetMapping("/api/lobby/connect/{code}")
+    public boolean connectingToLobby(Model model,
+                        @CookieValue(value = "token", defaultValue = "null")String token,
+                        @PathVariable(value = "code")String code
+    ) {
+        Optional<Lobby> lobby = lobbyRepository.findByCode(code.toUpperCase());
+
+        if (lobby.isEmpty())
+            return false;
+
+        if (token.equals("null"))
+            return false;
+
+        Optional<User> userOptional = userRepository.findByToken(token);
+
+        if (userOptional.isEmpty())
+            return false;
+
+        userOptional.get().setLobbyId(lobby.get().getId());
+        userRepository.save(userOptional.get());
+
+        System.out.println("User "+userOptional.get().getName()+" moved to lobby "+lobby.get().getCode());
+
+        return true;
+    }
+
+    @GetMapping("/api/lobby/leave")
+    public boolean leaveFromLobby(Model model,
+                                     @CookieValue(value = "token", defaultValue = "null")String token
+    ) {
+        if (token.equals("null"))
+            return false;
+
+        Optional<User> userOptional = userRepository.findByToken(token);
+
+        if (userOptional.isEmpty())
+            return false;
+
+        userOptional.get().setLobbyId(null);
+        userRepository.save(userOptional.get());
+
+        System.out.println("User "+userOptional.get().getName()+" leave from lobby");
+
+        return true;
     }
 
     @GetMapping("/lobby/{code}")

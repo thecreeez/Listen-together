@@ -42,7 +42,7 @@ const LOBBY_INDEX = {
                             <input id="codeInput" class="controller--lobby_id--input" type="text" placeholder="ID Лобби" :value="this.$route.params.id" maxlength="6" readonly>
                     </div>
                     <div class="controller--leave">
-                        <i class="controller--button fa-solid fa-right-from-bracket"></i>
+                        <i v-on:click="leaveFromLobby()" class="controller--button fa-solid fa-right-from-bracket"></i>
                     </div>
                 </div>
             </div>
@@ -77,18 +77,26 @@ const LOBBY_INDEX = {
                 .then((response) => {
                     return response.text()
                 }).then((data) => {
+                    console.log(data);
                     const dataJSON = JSON.parse(data);
 
                     dataJSON.users.forEach((user) => {
-                        this.users.push(user);
+                        if (!isUserExist(user.id))
+                            this.users.push(user);
                     })
                 })
         },
 
         async handshakeLobby() {
-            socket.send(this.$route.params.id);
+            socket.send("conn//"+this.$route.params.id);
             console.log("hsking to socket. code: "+this.$route.params.id);
             GLOBAL_DATA.vue.fetchData();
+        },
+
+        async leaveFromLobby() {
+            socket.send("disc");
+            GLOBAL_DATA.vue.fetchData();
+            this.$router.push("/");
         }
     }
 }
