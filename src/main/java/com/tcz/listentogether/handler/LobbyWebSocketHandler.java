@@ -1,7 +1,9 @@
 package com.tcz.listentogether.handler;
 
+import com.tcz.listentogether.LobbyAudioController;
 import com.tcz.listentogether.enums.UserState;
 import com.tcz.listentogether.models.Lobby;
+import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.User;
 import com.tcz.listentogether.repo.*;
 import com.tcz.listentogether.websockets.UserConnection;
@@ -14,6 +16,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.persistence.Lob;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.*;
 
@@ -224,13 +228,32 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
     private void handlePlayerCommand(String[] args, WebSocketSession session, User user, Lobby lobby) throws IOException {
         String command = args[1];
 
+        LobbyAudioController lobbyAudioController = new LobbyAudioController(lobby, lobbyRepository, songInQueueRepository);
+
         switch (command) {
             case "playstop": {
-                lobby.setPlaying(!lobby.isPlaying());
-                lobbyRepository.save(lobby);
-
+                lobbyAudioController.playstop();
                 sendToLobby(lobby.getId(), "player//isPlaying//"+lobby.isPlaying());
                 break;
+            }
+            case "skipsong": {
+                lobbyAudioController.skipSong();
+                sendToLobby(lobby.getId(), "player//skipSong");
+                break;
+            }
+            case "addSongToList": {
+                try {
+                    long songId = Long.valueOf(args[2]);
+
+                    Optional<Song> song = songRepository.findById(songId);
+
+                    if (!song.isEmpty())
+                        lobbyAudioController.addSongToList(song.get());
+                    else
+                        System.out.println("Попытка добавить несуществующую песню...");
+                } catch(NumberFormatException e) {
+                    System.out.println("Неверно введена команда добавления песни. id не указан в формате числа.");
+                }
             }
         }
     }
@@ -269,22 +292,14 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
     @Scheduled(fixedRate = 500L)
     void updateLobbyTime() {
-        System.out.println("updating lobbytime...");
         Iterable<Lobby> lobbies = lobbyRepository.findAll();
 
         lobbies.forEach(lobby -> {
-            if (lobby.isPlaying()) {
-                System.out.println(lobby.getCurrentSong().getSong());
+            if (lobby.isPlaying() && lobby.getCurrentSong() != null) {
+                LobbyAudioController lobbyAudioController = new LobbyAudioController(lobby, lobbyRepository, songInQueueRepository);
 
-                System.out.println(songRepository.findById(lobby.getCurrentSong().getSongId()).get().getName());;
-
-                long currTime = 0;
-
-                if (lobby.getTime() != null)
-                    currTime = lobby.getTime();
-
-                lobby.setTime(currTime+500L);
-                lobbyRepository.save(lobby);
+                System.out.println("lobby "+lobby.getCode()+" updating! "+lobby.getCurrentSong().getSong().getName());
+                lobbyAudioController.update();
             }
         });
     }

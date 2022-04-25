@@ -10,19 +10,19 @@ public class Lobby {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String code;
-    private Long currentSongId;
     private Long time;
+    private Long maxTime;
     private boolean isPlaying;
 
     @OneToOne(targetEntity = SongInQueue.class, cascade = CascadeType.ALL)
-    @JoinColumn(name="id", referencedColumnName = "currentSongId")
+    @JoinColumn(name="current_song_id")
     private SongInQueue currentSong;
 
     @OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
     @JoinColumn(name="lobbyId", referencedColumnName = "id")
     private List<User> users;
 
-    @OneToMany(targetEntity = SongInQueue.class, cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = SongInQueue.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="lobbyId", referencedColumnName = "id")
     private List<SongInQueue> songsList;
 
@@ -61,14 +61,6 @@ public class Lobby {
         this.code = code;
     }
 
-    public Long getCurrentSongId() {
-        return currentSongId;
-    }
-
-    public void setCurrentSongId(Long currentSongId) {
-        this.currentSongId = currentSongId;
-    }
-
     public Long getTime() {
         return time;
     }
@@ -91,5 +83,13 @@ public class Lobby {
 
     public void setCurrentSong(SongInQueue currentSong) {
         this.currentSong = currentSong;
+    }
+
+    public Long getMaxTime() {
+        return maxTime;
+    }
+
+    public void setMaxTime(Long maxTime) {
+        this.maxTime = maxTime;
     }
 }

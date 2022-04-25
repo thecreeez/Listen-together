@@ -1,6 +1,5 @@
 package com.tcz.listentogether.response;
 
-import com.tcz.listentogether.datas.SongData;
 import com.tcz.listentogether.datas.UserData;
 import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.Song;
