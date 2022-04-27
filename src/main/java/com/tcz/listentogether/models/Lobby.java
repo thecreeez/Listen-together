@@ -24,6 +24,7 @@ public class Lobby {
 
     @OneToMany(targetEntity = SongInQueue.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="lobbyId", referencedColumnName = "id")
+    @OrderBy("queuePosition")
     private List<SongInQueue> songsList;
 
     public Lobby() {

@@ -81,7 +81,9 @@ public class UploadController {
 
         Optional<Album> albumOptional = albumRepository.findByName(album);
         if (albumOptional.isEmpty() || albumOptional.get().getAuthor().getName() != authorOptional.get().getName()) {
-            Album newAlbum = new Album(authorOptional.get().getId(), album);
+            Album newAlbum = new Album();
+            newAlbum.setAuthor(authorOptional.get());
+            newAlbum.setName(album);
             albumRepository.save(newAlbum);
             albumOptional = albumRepository.findByName(album);
         }

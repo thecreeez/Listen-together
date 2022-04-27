@@ -1,5 +1,6 @@
 package com.tcz.listentogether.response;
 
+import com.tcz.listentogether.datas.SongData;
 import com.tcz.listentogether.datas.UserData;
 import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.Song;
@@ -11,7 +12,8 @@ import java.util.ArrayList;
 public class LobbyDataResponse {
 
     private ArrayList<UserData> users = new ArrayList<>();
-    //private ArrayList<SongData> songsInQueue = new ArrayList<>();
+    private ArrayList<SongData> songsInQueue = new ArrayList<>();
+    private SongData currentSong;
     private boolean isPlaying;
     private long time = 0;
 
@@ -21,11 +23,14 @@ public class LobbyDataResponse {
         for (User user : lobby.getUsers()) {
             this.users.add(new UserData(user));
         }
-/*
+
         for (SongInQueue songInQueue : lobby.getSongsList()) {
-            this.songsInQueue.add(new SongData(songInQueue.getSong()));
-        }*/
+            this.songsInQueue.add(new SongData(songInQueue));
+        }
         this.isPlaying = lobby.isPlaying();
+
+        if (lobby.getCurrentSong() != null)
+            this.currentSong = new SongData(lobby.getCurrentSong());
 
         if (lobby.getTime() != null)
             this.time = lobby.getTime();
@@ -53,5 +58,21 @@ public class LobbyDataResponse {
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public ArrayList<SongData> getSongsInQueue() {
+        return songsInQueue;
+    }
+
+    public void setSongsInQueue(ArrayList<SongData> songsInQueue) {
+        this.songsInQueue = songsInQueue;
+    }
+
+    public SongData getCurrentSong() {
+        return currentSong;
+    }
+
+    public void setCurrentSong(SongData currentSong) {
+        this.currentSong = currentSong;
     }
 }

@@ -21,8 +21,8 @@ const eventBus = {
 const GLOBAL_DATA = {
     isSocketConnected: false
 }
-
-const socket = new WebSocket("ws://@localhost:8080/lobbyws");
+const port = 1000;
+const socket = new WebSocket("ws://"+window.location.hostname+":"+1000+"/lobbyws");
 
 /**
  * EVENTS
@@ -40,7 +40,7 @@ eventBus.subscribe("socketOpen", () => GLOBAL_DATA.isSocketConnected = true);
 eventBus.subscribe("socketMessage", (data) => {
     const args = data.event.data.split("//");
 
-    console.log(data.event.data);
+    //console.log(data.event.data);
 
     switch (args[0]) {
         case "userState":
@@ -54,6 +54,11 @@ eventBus.subscribe("socketMessage", (data) => {
         default:
             return console.log(`undefined command: ${args[0]}`);
     }
+})
+
+eventBus.subscribe("socketClose", () => {
+    alert("Потеряно соединение с сервером...")
+    location.reload();
 })
 
 eventBus.subscribe("userState", (args) => {
@@ -88,6 +93,9 @@ eventBus.subscribe("disconnection", (args) => {
 
 function isUserExist(id) {
     let isUserExist = false;
+
+    if (!GLOBAL_DATA.users)
+        return;
 
     GLOBAL_DATA.users.forEach((user) => {
         if (user.id == id)

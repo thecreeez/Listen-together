@@ -8,20 +8,14 @@ public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long authorId;
 
     private String name;
 
     @OneToOne(targetEntity = Author.class, cascade = CascadeType.ALL)
-    @JoinColumn(name="id", referencedColumnName = "authorId")
+    @JoinColumn(name="author_id")
     private Author author;
 
     public Album() {
-    }
-
-    public Album(Long authorId, String name) {
-        this.authorId = authorId;
-        this.name = name;
     }
 
     public Long getId() {
@@ -30,14 +24,6 @@ public class Album {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
     }
 
     public String getName() {

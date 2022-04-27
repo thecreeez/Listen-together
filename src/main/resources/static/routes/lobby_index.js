@@ -77,13 +77,17 @@ const LOBBY_INDEX = {
                 .then((response) => {
                     return response.text()
                 }).then((data) => {
-                    console.log(data);
                     const dataJSON = JSON.parse(data);
+
+                    console.log(dataJSON);
 
                     dataJSON.users.forEach((user) => {
                         if (!isUserExist(user.id))
                             this.users.push(user);
                     })
+
+                    GLOBAL_DATA.vue.songInQueueList = dataJSON.songsInQueue;
+                    GLOBAL_DATA.vue.currentSong = dataJSON.currentSong;
                 })
         },
 

@@ -104,7 +104,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         Optional<User> user = userRepository.findByToken(token);
 
         if (user.isEmpty()) {
-            session.close();
+            //session.close();
             return;
         }
 
@@ -132,6 +132,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         Optional<User> user = userRepository.findByToken(getToken(session));
 
         if (user.isEmpty()) {
+            System.out.println("Пользователь не найден... Отключение от сервера!");
             session.close();
             return;
         }
@@ -279,6 +280,9 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         for (String cookie : cookies) {
             String[] args = cookie.split("=");
 
+            if (args.length == 1)
+                return "null";
+
             switch (args[0]) {
                 case "token": token = args[1]; break;
                 default: {
@@ -298,8 +302,25 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
             if (lobby.isPlaying() && lobby.getCurrentSong() != null) {
                 LobbyAudioController lobbyAudioController = new LobbyAudioController(lobby, lobbyRepository, songInQueueRepository);
 
-                System.out.println("lobby "+lobby.getCode()+" updating! "+lobby.getCurrentSong().getSong().getName());
+                boolean isBeforePlaying = lobby.isPlaying();
+                boolean isBeforeSongQueueEnded = lobbyAudioController.isSongEnded();
+
                 lobbyAudioController.update();
+
+                try {
+                    if (isBeforePlaying != lobby.isPlaying())
+                        sendToLobby(lobby.getId(), "player//isPlaying//"+lobby.isPlaying());
+
+                    if (lobbyAudioController.isSongEnded()) {
+                        String arg = lobbyAudioController.isQueueEmpty() ? "nextSongEmpty" : "nextSongReady";
+
+                        sendToLobby(lobby.getId(), "player//songEnded//"+arg);
+                    }
+
+                    sendToLobby(lobby.getId(), "player//sync//"+lobby.getTime());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

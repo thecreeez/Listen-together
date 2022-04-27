@@ -1,6 +1,7 @@
 package com.tcz.listentogether.datas;
 
 //import com.tcz.listentogether.models.Song;
+import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.SongInQueue;
 
 public class SongData {
@@ -8,14 +9,16 @@ public class SongData {
     private long id;
     private String name;
     private long views;
+    private long queuePosition;
 
     private AlbumData albumData;
     private AuthorData authorData;
 
-    public SongData(/*Song song*/) {
-        //this.id = song.getId();
-        //this.name = song.getName();
-        //this.views = song.getViews();
+    public SongData(SongInQueue songInQueue) {
+        this.id = songInQueue.getSong().getId();
+        this.name = songInQueue.getSong().getName();
+        this.views = songInQueue.getSong().getViews();
+        this.queuePosition = songInQueue.getQueuePosition();
 
         //this.albumData = new AlbumData(song.getAlbum());
         //this.authorData = new AuthorData(song.getAlbum().getAuthor());
@@ -59,5 +62,13 @@ public class SongData {
 
     public void setAuthorData(AuthorData authorData) {
         this.authorData = authorData;
+    }
+
+    public long getQueuePosition() {
+        return queuePosition;
+    }
+
+    public void setQueuePosition(long queuePosition) {
+        this.queuePosition = queuePosition;
     }
 }

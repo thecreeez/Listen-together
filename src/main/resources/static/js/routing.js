@@ -17,17 +17,28 @@ const app = Vue.createApp({
             username: null,
             isAuth: false,
             users: new Map(),
+            ping: 0,
 
             isOnLobby: false,
             lobbyCode: null,
 
-            isPlaying: false
+            isPlaying: false,
+
+            audio: new Audio("/songs/getCurrentSong"),
+
+            songInQueueList: [],
+            currentSong: null,
+
+            durationSliderWidth: 0+'%'
         };
     },
 
     created() {
         this.fetchData();
         this.eventBusSubscribe();
+
+        if (this.isOnLobby)
+            eventBus.invoke("connectedToLobby");
     },
 
     methods: {
@@ -63,7 +74,7 @@ const app = Vue.createApp({
 
         async connectedToSocket() {
 
-            console.log("Подключено к сокету! " + this.lobbyCode)
+            console.log("Подключено к сокету! " + this.lobbyCode);
         },
 
         playstop() {
