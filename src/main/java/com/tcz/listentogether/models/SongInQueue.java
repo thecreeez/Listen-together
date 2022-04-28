@@ -11,7 +11,7 @@ public class SongInQueue {
     private Long lobbyId;
     private Long queuePosition;
 
-    @OneToOne(targetEntity = Song.class, cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = Song.class, cascade = CascadeType.MERGE, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name="song_id")
     private Song song;
 

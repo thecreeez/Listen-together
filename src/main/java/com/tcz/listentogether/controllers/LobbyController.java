@@ -45,15 +45,12 @@ public class LobbyController {
         if (userOptional.isEmpty())
             return null;
 
-        if (userOptional.get().getLobbyId() == null)
+        if (userOptional.get().getLobby() == null)
             return null;
 
-        Optional<Lobby> lobbyOptional = lobbyRepository.findById(userOptional.get().getLobbyId());
+        Lobby lobby = userOptional.get().getLobby();
 
-        if (lobbyOptional.isEmpty())
-            return null;
-
-        return new LobbyDataResponse(lobbyOptional.get());
+        return new LobbyDataResponse(lobby);
     }
 
     @GetMapping("/lobby/{code}")

@@ -1,5 +1,6 @@
 package com.tcz.listentogether.handler;
 
+import com.tcz.listentogether.CodeRandomizer;
 import com.tcz.listentogether.LobbyAudioController;
 import com.tcz.listentogether.enums.UserState;
 import com.tcz.listentogether.models.Lobby;
@@ -7,6 +8,7 @@ import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.User;
 import com.tcz.listentogether.repo.*;
 import com.tcz.listentogether.websockets.UserConnection;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import javax.persistence.Lob;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
 
@@ -113,13 +116,11 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         userRepository.save(user.get());
         webSocketSessions.put(session.getId(), session);
 
-        if (user.get().getLobbyId() != null) {
-            Optional<Lobby> optionalLobby = lobbyRepository.findById(user.get().getLobbyId());
+        if (user.get().getLobby() != null) {
+            Lobby lobby = user.get().getLobby();
 
-            if (!optionalLobby.isEmpty()) {
-                UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-                sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
-            }
+            UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
+            sendToLobby(user.get().getLobby().getId(), "userState//"+userConnection.toString());
         }
 
         checkSocketConnections();
@@ -159,9 +160,9 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
             userRepository.save(user.get());
 
-            if (user.get().getLobbyId() != null) {
+            if (user.get().getLobby() != null) {
                 UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-                sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
+                sendToLobby(user.get().getLobby().getId(), "userState//"+userConnection.toString());
             }
         }
     }
@@ -171,6 +172,42 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
         switch (command) {
             case "conn": {
+                if (args.length == 1) {
+                    Lobby newLobby = new Lobby();
+
+                    String code = CodeRandomizer.random();
+
+                    while (!lobbyRepository.findByCode(code).isEmpty()) {
+                        code = CodeRandomizer.random();
+                    }
+
+                    System.out.println("Создание нового лобби для "+user.getName()+". Код лобби: "+code);
+
+                    newLobby.setCode(code);
+                    lobbyRepository.save(newLobby);
+
+                    if (user.getLobby() != null) {
+                        Lobby lobby = user.getLobby();
+
+                        Iterable<User> usersIterator = userRepository.findAllByLobbyId(lobby.getId());
+                        List<User> users = new ArrayList<>();
+                        usersIterator.forEach(users::add);
+
+                        System.out.println(users.size());
+
+                        if (users.size() <= 1) {
+                            System.out.println("Удаление лобби "+lobby.getCode()+". Причина: Последний пользователь вышел из лобби.");
+                            lobbyRepository.delete(lobby);
+                        }
+                    }
+
+                    user.setLobby(lobbyRepository.findById(newLobby.getId()).get());
+                    userRepository.save(user);
+
+                    session.sendMessage(new TextMessage("redir//to:/lobby/"+code));
+                    return;
+                }
+
                 String code = args[1];
 
                 Optional<Lobby> lobby = lobbyRepository.findByCode(code);
@@ -184,7 +221,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                 System.out.println("Пользователь "+user.getName()+" подключается к лобби с кодом "+code+"...");
 
-                user.setLobbyId(lobby.get().getId());
+                user.setLobby(lobby.get());
                 userRepository.save(user);
 
                 UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
@@ -194,29 +231,27 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
             case "disc": {
                 System.out.println("Пользователь "+user.getName()+" выходит из лобби...");
 
-                if (user.getLobbyId() == null) {
+                if (user.getLobby() == null) {
                     System.out.println("Нельзя выйти из лобби, пользователь и так в нем не находится");
                     return;
                 }
 
-                Optional<Lobby> lobby = lobbyRepository.findById(user.getLobbyId());
+                Lobby lobby = user.getLobby();
 
-                user.setLobbyId(null);
+                user.setLobby(null);
                 userRepository.save(user);
 
-                if (!lobby.isEmpty()) {
-                    UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
-                    sendToLobby(lobby.get().getId(), "disc//"+userConnection.toString());
-                }
+                UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
+                sendToLobby(lobby.getId(), "disc//"+userConnection.toString());
                 break;
             }
             case "pcontrol": {
-                Optional<Lobby> lobby = lobbyRepository.findById(user.getLobbyId());
+                Lobby lobby = user.getLobby();
 
-                if (lobby.isEmpty())
+                if (lobby == null)
                     return;
 
-                handlePlayerCommand(args, session, user, lobby.get());
+                handlePlayerCommand(args, session, user, lobby);
                 break;
             }
             default: {

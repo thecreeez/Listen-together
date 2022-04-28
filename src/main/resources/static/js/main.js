@@ -51,6 +51,8 @@ eventBus.subscribe("socketMessage", (data) => {
             return eventBus.invoke("disconnection", args);
         case "player":
             return eventBus.invoke("playerControl", args);
+        case "redir":
+            return eventBus.invoke("redirect", args);
         default:
             return console.log(`undefined command: ${args[0]}`);
     }
@@ -89,6 +91,13 @@ eventBus.subscribe("disconnection", (args) => {
     console.log("Пользователь "+args[1]+" отключился от лобби.")
 
     GLOBAL_DATA.users.splice(getUserIndexById(args[3]), 1);
+})
+
+eventBus.subscribe("redirect", (args) => {
+    const link = args[1].split(":")[1];
+    console.log(link);
+
+    GLOBAL_DATA.vue.$router.push(link);
 })
 
 function isUserExist(id) {

@@ -2,10 +2,8 @@ package com.tcz.listentogether.models;
 
 import com.tcz.listentogether.enums.UserState;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class User {
@@ -27,8 +25,11 @@ public class User {
     private String password;
     private UserState state;
     private String token;
-    private Long lobbyId;
     private String simpSessionId;
+
+    @OneToOne(targetEntity = Lobby.class, cascade = CascadeType.ALL, orphanRemoval = false)
+    @JoinColumn(name="lobbyId")
+    private Lobby lobby;
 
     public UserState getState() {
         return state;
@@ -70,19 +71,19 @@ public class User {
         this.token = token;
     }
 
-    public Long getLobbyId() {
-        return lobbyId;
-    }
-
-    public void setLobbyId(Long lobbyId) {
-        this.lobbyId = lobbyId;
-    }
-
     public String getSimpSessionId() {
         return simpSessionId;
     }
 
     public void setSimpSessionId(String simpSessionId) {
         this.simpSessionId = simpSessionId;
+    }
+
+    public Lobby getLobby() {
+        return lobby;
+    }
+
+    public void setLobby(Lobby lobby) {
+        this.lobby = lobby;
     }
 }

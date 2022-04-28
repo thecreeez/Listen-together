@@ -18,11 +18,11 @@ public class Lobby {
     @JoinColumn(name="current_song_id")
     private SongInQueue currentSong;
 
-    @OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
-    @JoinColumn(name="lobbyId", referencedColumnName = "id")
+    @OneToMany(targetEntity = User.class, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JoinColumn(name="id")
     private List<User> users;
 
-    @OneToMany(targetEntity = SongInQueue.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = SongInQueue.class, cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name="lobbyId", referencedColumnName = "id")
     @OrderBy("queuePosition")
     private List<SongInQueue> songsList;
