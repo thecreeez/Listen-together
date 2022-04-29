@@ -31,17 +31,21 @@ public class SongController {
         if (userOptional.isEmpty())
             return null;
 
-        if (userOptional.get().getLobby() == null)
+        if (userOptional.get().getLobbyId() == null)
             return null;
 
-        Lobby lobby = userOptional.get().getLobby();
+        Optional<Lobby> lobby = lobbyRepository.findById(userOptional.get().getLobbyId());
 
-        if (lobby.getCurrentSong() == null)
+        if (lobby.isEmpty())
             return null;
 
-        System.out.println("Пользователь "+userOptional.get().getName()+" получил песню "+lobby.getCurrentSong().getSong().getName()+"."+" Путь: "+lobby.getCurrentSong().getSong().getPath());
 
-        FileSystemResource resource = new FileSystemResource(lobby.getCurrentSong().getSong().getPath());
+        if (lobby.get().getCurrentSong() == null)
+            return null;
+
+        System.out.println("Пользователь "+userOptional.get().getName()+" получил песню "+lobby.get().getCurrentSong().getSong().getName()+"."+" Путь: "+lobby.get().getCurrentSong().getSong().getPath());
+
+        FileSystemResource resource = new FileSystemResource(lobby.get().getCurrentSong().getSong().getPath());
 
         MediaType mediaType = MediaTypeFactory
                 .getMediaType(resource)
@@ -51,7 +55,7 @@ public class SongController {
 
         ContentDisposition disposition = ContentDisposition
                 .inline()
-                .filename(/*lobbyOptional.get().getCurrentSong().getSong().getAlbum().getAuthor().getName()+" - "+*/lobby.getCurrentSong().getSong().getName())
+                .filename(/*lobbyOptional.get().getCurrentSong().getSong().getAlbum().getAuthor().getName()+" - "+*/lobby.get().getCurrentSong().getSong().getName())
                 .build();
         headers.setContentDisposition(disposition);
 

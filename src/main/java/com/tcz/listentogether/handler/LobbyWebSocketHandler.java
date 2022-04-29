@@ -116,11 +116,9 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         userRepository.save(user.get());
         webSocketSessions.put(session.getId(), session);
 
-        if (user.get().getLobby() != null) {
-            Lobby lobby = user.get().getLobby();
-
+        if (user.get().getLobbyId() != null) {
             UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-            sendToLobby(user.get().getLobby().getId(), "userState//"+userConnection.toString());
+            sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
         }
 
         checkSocketConnections();
@@ -160,9 +158,9 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
             userRepository.save(user.get());
 
-            if (user.get().getLobby() != null) {
+            if (user.get().getLobbyId() != null) {
                 UserConnection userConnection = new UserConnection(user.get().getName(), user.get().getState(), user.get().getId());
-                sendToLobby(user.get().getLobby().getId(), "userState//"+userConnection.toString());
+                sendToLobby(user.get().getLobbyId(), "userState//"+userConnection.toString());
             }
         }
     }
@@ -186,8 +184,14 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                     newLobby.setCode(code);
                     lobbyRepository.save(newLobby);
 
-                    if (user.getLobby() != null) {
-                        Lobby lobby = user.getLobby();
+                    if (user.getLobbyId() != null) {
+                        Optional<Lobby> lobbyOptional = lobbyRepository.findById(user.getLobbyId());
+
+                        if (lobbyOptional.isEmpty())
+                            return;
+
+                        Lobby lobby = lobbyOptional.get();
+
 
                         Iterable<User> usersIterator = userRepository.findAllByLobbyId(lobby.getId());
                         List<User> users = new ArrayList<>();
@@ -197,11 +201,11 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                         if (users.size() <= 1) {
                             System.out.println("Удаление лобби "+lobby.getCode()+". Причина: Последний пользователь вышел из лобби.");
-                            lobbyRepository.delete(lobby);
+                            //lobbyRepository.delete(lobby);
                         }
                     }
 
-                    user.setLobby(lobbyRepository.findById(newLobby.getId()).get());
+                    user.setLobbyId(newLobby.getId());
                     userRepository.save(user);
 
                     session.sendMessage(new TextMessage("redir//to:/lobby/"+code));
@@ -221,7 +225,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                 System.out.println("Пользователь "+user.getName()+" подключается к лобби с кодом "+code+"...");
 
-                user.setLobby(lobby.get());
+                user.setLobbyId(lobby.get().getId());
                 userRepository.save(user);
 
                 UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
@@ -231,14 +235,14 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
             case "disc": {
                 System.out.println("Пользователь "+user.getName()+" выходит из лобби...");
 
-                if (user.getLobby() == null) {
+                if (user.getLobbyId() == null) {
                     System.out.println("Нельзя выйти из лобби, пользователь и так в нем не находится");
                     return;
                 }
 
-                Lobby lobby = user.getLobby();
+                Lobby lobby = lobbyRepository.findById(user.getLobbyId()).get();
 
-                user.setLobby(null);
+                user.setLobbyId(null);
                 userRepository.save(user);
 
                 UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
@@ -246,7 +250,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                 break;
             }
             case "pcontrol": {
-                Lobby lobby = user.getLobby();
+                Lobby lobby = lobbyRepository.findById(user.getLobbyId()).get();
 
                 if (lobby == null)
                     return;

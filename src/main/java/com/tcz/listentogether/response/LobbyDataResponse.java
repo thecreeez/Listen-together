@@ -18,7 +18,7 @@ public class LobbyDataResponse {
     private long time = 0;
 
     public LobbyDataResponse(Lobby lobby) {
-        System.out.println("lobby data: users: "+lobby.getUsers().size()+". songs in queue: "+lobby.getSongsList().size());
+        System.out.println("lobby "+lobby.getCode()+" data: users: "+lobby.getUsers().size()+". songs in queue: "+lobby.getSongsList().size());
 
         for (User user : lobby.getUsers()) {
             this.users.add(new UserData(user));

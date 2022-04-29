@@ -44,10 +44,11 @@ public class MainController {
                 data.put("username", userOptional.get().getName());
                 data.put("isAuth", "true");
 
-                if (userOptional.get().getLobby() != null) {
-                    if (userOptional.get().getLobby() != null) {
-                        data.put("lobbyCode", userOptional.get().getLobby().getCode());
-                        data.put("isOnLobby", "true");
+                if (userOptional.get().getLobbyId() != null) {
+                    Optional<Lobby> lobbyOptional = lobbyRepository.findById(userOptional.get().getLobbyId());
+
+                    if (!lobbyOptional.isEmpty()) {
+                        data.put("lobbyCode", lobbyOptional.get().getCode());
                     }
                 }
             }

@@ -11,6 +11,12 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String name;
+    private String password;
+    private UserState state;
+    private String token;
+    private String simpSessionId;
+    private Long lobbyId;
 
     public User() {
     }
@@ -20,16 +26,6 @@ public class User {
         this.password = password;
         this.token = token;
     }
-
-    private String name;
-    private String password;
-    private UserState state;
-    private String token;
-    private String simpSessionId;
-
-    @OneToOne(targetEntity = Lobby.class, cascade = CascadeType.ALL, orphanRemoval = false)
-    @JoinColumn(name="lobbyId")
-    private Lobby lobby;
 
     public UserState getState() {
         return state;
@@ -79,11 +75,11 @@ public class User {
         this.simpSessionId = simpSessionId;
     }
 
-    public Lobby getLobby() {
-        return lobby;
+    public Long getLobbyId() {
+        return lobbyId;
     }
 
-    public void setLobby(Lobby lobby) {
-        this.lobby = lobby;
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
     }
 }
