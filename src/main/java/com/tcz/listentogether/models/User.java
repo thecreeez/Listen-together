@@ -16,6 +16,8 @@ public class User {
     private UserState state;
     private String token;
     private String simpSessionId;
+
+
     private Long lobbyId;
 
     public User() {

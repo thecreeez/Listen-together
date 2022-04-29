@@ -55,7 +55,7 @@
 
     <div class="player">
         <div class="player--wrapper">
-            <div class="player--duration--slider">
+            <div v-on:click="moveDuration" class="player--duration--slider">
                 <div v-bind:style=" { width: durationSliderWidth } "class="player--duration--slider--done"></div>
             </div>
 

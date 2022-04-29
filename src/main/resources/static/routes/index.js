@@ -43,8 +43,8 @@ const INDEX_COMPONENT = {
             const code = document.getElementById("lobbyCode").value.toUpperCase();
 
             socket.send("conn//"+code);
-            this.$router.push("/lobby/"+code);
-            console.log("hsking to socket. code: "+code);
+
+            eventBus.invoke("connectingToLobby", code);
             GLOBAL_DATA.vue.fetchData();
         }
     }

@@ -50,7 +50,6 @@ eventBus.subscribe("getSongFromServer", (vue) => {
 })
 
 eventBus.subscribe("connectedToLobby", (vue) => {
-    console.log("Подключение к лобби завершено!");
     eventBus.invoke("getSongFromServer");
 })
 

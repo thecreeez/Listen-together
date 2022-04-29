@@ -1,3 +1,11 @@
+const STATE = {
+    MENU: "menu",
+    AWAITING_LOBBY: "awaiting",
+    ON_LOBBY: "on_lobby",
+    START: "start"
+}
+
+
 const eventBus = {
     data: {},
 
@@ -75,6 +83,9 @@ eventBus.subscribe("connection", (args) => {
     if (isUserExist(args[3]))
         return;
 
+    if (!GLOBAL_DATA.users)
+        return;
+
     console.log("Пользователь "+args[1]+" подключился к лобби.")
 
     GLOBAL_DATA.users.push({
@@ -95,7 +106,6 @@ eventBus.subscribe("disconnection", (args) => {
 
 eventBus.subscribe("redirect", (args) => {
     const link = args[1].split(":")[1];
-    console.log(link);
 
     GLOBAL_DATA.vue.$router.push(link);
 })

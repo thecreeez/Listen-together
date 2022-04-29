@@ -193,6 +193,20 @@ public class LobbyAudioController {
         return songInQueueHashMap;
     }
 
+    public void moveTimeLine(Long time) {
+        if (time > lobby.getMaxTime())
+            return;
+
+        if (time < 0)
+            return;
+
+        if (lobby.getCurrentSong() == null)
+            return;
+
+        lobby.setTime(time);
+        lobbyRepository.save(lobby);
+    }
+
     public boolean isSongEnded() {
         return isSongEnded;
     }

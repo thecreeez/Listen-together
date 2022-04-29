@@ -11,6 +11,7 @@ const router = VueRouter.createRouter({
     routes
 })
 
+
 const app = Vue.createApp({
     data() {
         return {
@@ -18,6 +19,7 @@ const app = Vue.createApp({
             isAuth: false,
             users: new Map(),
             ping: 0,
+            state: STATE.START,
 
             isOnLobby: false,
             lobbyCode: null,
@@ -44,8 +46,6 @@ const app = Vue.createApp({
     methods: {
         async fetchData() {
             const data = parseData(document.getElementById("data").innerText);
-
-            console.log("data from back: ",data);
 
             if (data.get("username") !== "null") {
                 this.username = data.get("username");
@@ -79,6 +79,16 @@ const app = Vue.createApp({
 
         playstop() {
             socket.send("pcontrol//playstop");
+        },
+
+        moveDuration(event) {
+            const MAX_CURRENT_AUDIO_LENGTH = this.audio.duration * 1000;
+            const PLAYER_WIDTH = event.target.className == "player--duration--slider--done" ? event.path[1].offsetWidth : event.target.offsetWidth;
+            const CLICKED_X = event.offsetX < 0 ? 0 : event.offsetX;
+
+            let time = Math.round((CLICKED_X / PLAYER_WIDTH) * MAX_CURRENT_AUDIO_LENGTH);
+
+            socket.send("pcontrol//movetime//"+time);
         }
     }
 });
@@ -114,6 +124,23 @@ function parseData(data) {
 
     return res;
 }
+
+eventBus.subscribe("setState", (data) => {
+    console.log("Смена состояния сайта на "+data.state+". Причина: "+data.reason);
+    GLOBAL_DATA.vue.state = data.state;
+})
+
+eventBus.subscribe("connectingToLobby", (code) => {
+    if (code == "") {
+        eventBus.invoke("setState", {state: STATE.AWAITING_LOBBY, reason: "Создание лобби"});
+    } else {
+        eventBus.invoke("setState", {state: STATE.AWAITING_LOBBY, reason: "Подключение к лобби"});
+    }
+})
+
+eventBus.subscribe("connectedToLobby", (code) => {
+    eventBus.invoke("setState", {state: STATE.ON_LOBBY, reason: "Завершено подключение к лобби"});
+})
 
 /*
 TODO:

@@ -8,7 +8,6 @@ import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.User;
 import com.tcz.listentogether.repo.*;
 import com.tcz.listentogether.websockets.UserConnection;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -17,10 +16,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import javax.persistence.Lob;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
 
@@ -201,7 +196,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                         if (users.size() <= 1) {
                             System.out.println("Удаление лобби "+lobby.getCode()+". Причина: Последний пользователь вышел из лобби.");
-                            //lobbyRepository.delete(lobby);
+                            lobbyRepository.delete(lobby);
                         }
                     }
 
@@ -228,6 +223,8 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                 user.setLobbyId(lobby.get().getId());
                 userRepository.save(user);
 
+                session.sendMessage(new TextMessage("redir//to:/lobby/"+code));
+
                 UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
                 sendToLobby(lobby.get().getId(), "conn//"+userConnection.toString());
                 break;
@@ -244,6 +241,17 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                 user.setLobbyId(null);
                 userRepository.save(user);
+
+                Iterable<User> usersIterator = userRepository.findAllByLobbyId(lobby.getId());
+                List<User> users = new ArrayList<>();
+                usersIterator.forEach(users::add);
+
+                System.out.println(users.size());
+
+                if (users.size() <= 1) {
+                    System.out.println("Удаление лобби "+lobby.getCode()+". Причина: Последний пользователь вышел из лобби.");
+                    lobbyRepository.delete(lobby);
+                }
 
                 UserConnection userConnection = new UserConnection(user.getName(), user.getState(), user.getId());
                 sendToLobby(lobby.getId(), "disc//"+userConnection.toString());
@@ -294,6 +302,20 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                 } catch(NumberFormatException e) {
                     System.out.println("Неверно введена команда добавления песни. id не указан в формате числа.");
                 }
+
+                break;
+            }
+            case "movetime": {
+
+                System.out.println(args[2]);
+                try {
+                    long newDuration = Long.valueOf(args[2]);
+
+                    lobbyAudioController.moveTimeLine(newDuration);
+                } catch(NumberFormatException e) {
+                    System.out.println("Неверно введена команда перелистывания песни. длительность не указана в формате числа.");
+                }
+                break;
             }
         }
     }

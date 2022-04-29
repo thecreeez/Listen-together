@@ -63,6 +63,7 @@ const LOBBY_INDEX = {
                 eventBus.subscribe("socketOpen", this.handshakeLobby);
         }
 
+        eventBus.invoke("connectedToLobby", (GLOBAL_DATA.vue.lobbyCode));
         this.fetchData();
 
         GLOBAL_DATA.users = this.users;
@@ -70,16 +71,11 @@ const LOBBY_INDEX = {
 
     methods: {
         async fetchData() {
-            console.log("fetching lobby data...");
-            console.log(this.$route.params);
-
             await fetch("/get/lobbyData")
                 .then((response) => {
                     return response.text()
                 }).then((data) => {
                     const dataJSON = JSON.parse(data);
-
-                    console.log(dataJSON);
 
                     dataJSON.users.forEach((user) => {
                         if (!isUserExist(user.id))
@@ -93,7 +89,6 @@ const LOBBY_INDEX = {
 
         async handshakeLobby() {
             socket.send("conn//"+this.$route.params.id);
-            console.log("hsking to socket. code: "+this.$route.params.id);
             GLOBAL_DATA.vue.fetchData();
         },
 
@@ -101,6 +96,7 @@ const LOBBY_INDEX = {
             socket.send("disc");
             GLOBAL_DATA.vue.fetchData();
             this.$router.push("/");
-        }
+        },
+
     }
 }

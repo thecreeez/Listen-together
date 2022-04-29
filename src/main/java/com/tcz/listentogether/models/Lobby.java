@@ -19,7 +19,7 @@ public class Lobby {
     private SongInQueue currentSong;
 
     @OneToMany(targetEntity = User.class, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name="id")
+    @JoinColumn(name="lobbyId", referencedColumnName = "id")
     private List<User> users;
 
     @OneToMany(targetEntity = SongInQueue.class, cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
