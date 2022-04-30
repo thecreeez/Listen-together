@@ -21,6 +21,9 @@ const app = Vue.createApp({
             ping: 0,
             state: STATE.START,
 
+            volume: 0.8,
+            isAwaitingSync: false,
+
             isOnLobby: false,
             lobbyCode: null,
 
@@ -29,7 +32,7 @@ const app = Vue.createApp({
             audio: new Audio("/songs/getCurrentSong"),
 
             songInQueueList: [],
-            currentSong: null,
+            currentSongId: -1,
 
             durationSliderWidth: 0+'%'
         };
@@ -56,7 +59,28 @@ const app = Vue.createApp({
                 this.isOnLobby = data.get("isOnLobby");
             }
 
+            if (this.lobbyCode)
+                this.getLobbyData();
+
             GLOBAL_DATA.vue = this;
+        },
+
+        async getLobbyData() {
+            await fetch("/get/lobbyData")
+                .then((response) => {
+                    return response.text()
+                }).then(async (data) => {
+                    const dataJSON = JSON.parse(data);
+
+                    if (dataJSON.playing) {
+                        this.isPlaying = true;
+                        eventBus.invoke("getSongFromServer");
+                    } else {
+                        eventBus.invoke("onStop");
+                    }
+
+                    console.log("Getted data: ",dataJSON);
+                })
         },
 
         async leave() {
@@ -78,7 +102,7 @@ const app = Vue.createApp({
         },
 
         playstop() {
-            socket.send("pcontrol//playstop");
+            eventBus.invoke("playstopInvoking");
         },
 
         moveDuration(event) {
@@ -89,6 +113,20 @@ const app = Vue.createApp({
             let time = Math.round((CLICKED_X / PLAYER_WIDTH) * MAX_CURRENT_AUDIO_LENGTH);
 
             socket.send("pcontrol//movetime//"+time);
+        },
+
+        skipsong() {
+            console.log("Пропуск песни...")
+            socket.send("pcontrol//skipsong");
+        },
+
+        prevsong() {
+            console.log("Включение предыдущей песни...")
+            socket.send("pcontrol//prevsong");
+        },
+
+        repeat() {
+            socket.send("pcontrol//nextrepeat");
         }
     }
 });

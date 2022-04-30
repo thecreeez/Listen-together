@@ -79,13 +79,15 @@ public class UploadController {
             authorOptional = authorRepository.findByName(author);
         }
 
-        Optional<Album> albumOptional = albumRepository.findByName(album);
-        if (albumOptional.isEmpty() || albumOptional.get().getAuthor().getName() != authorOptional.get().getName()) {
+        Optional<Album> albumOptional = albumRepository.findByName(author);
+        Album songAlbum;
+        if (albumOptional.isEmpty()) {
             Album newAlbum = new Album();
             newAlbum.setAuthor(authorOptional.get());
-            newAlbum.setName(album);
-            albumRepository.save(newAlbum);
-            albumOptional = albumRepository.findByName(album);
+            newAlbum.setName(author);
+            songAlbum = albumRepository.save(newAlbum);
+        } else {
+            songAlbum = albumOptional.get();
         }
 
         Optional<Song> songOptional = songRepository.findByName(name);
@@ -97,7 +99,7 @@ public class UploadController {
 
         String path = "songs/"+UUID.randomUUID()+".mp3";
 
-        Song song = new Song(albumOptional.get().getId(), name, path);
+        Song song = new Song(songAlbum, name, path);
         songRepository.save(song);
 
         try {

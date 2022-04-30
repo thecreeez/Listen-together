@@ -6,30 +6,42 @@ import com.tcz.listentogether.models.SongInQueue;
 
 public class SongData {
 
-    private long id;
+    private long songId;
+    private long queueId;
+
     private String name;
     private long views;
     private long queuePosition;
 
-    private AlbumData albumData;
-    private AuthorData authorData;
+    private AlbumData album;
+    private AuthorData author;
 
     public SongData(SongInQueue songInQueue) {
-        this.id = songInQueue.getSong().getId();
+        this.songId = songInQueue.getSong().getId();
+        this.queueId = songInQueue.getId();
+
         this.name = songInQueue.getSong().getName();
         this.views = songInQueue.getSong().getViews();
         this.queuePosition = songInQueue.getQueuePosition();
 
-        //this.albumData = new AlbumData(song.getAlbum());
-        //this.authorData = new AuthorData(song.getAlbum().getAuthor());
+        this.album = new AlbumData(songInQueue.getSong().getAlbum());
+        this.author = new AuthorData(songInQueue.getSong().getAlbum().getAuthor());
     }
 
-    public long getId() {
-        return id;
+    public long getSongId() {
+        return songId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setSongId(long songId) {
+        this.songId = songId;
+    }
+
+    public long getQueueId() {
+        return queueId;
+    }
+
+    public void setQueueId(long queueId) {
+        this.queueId = queueId;
     }
 
     public String getName() {
@@ -48,20 +60,20 @@ public class SongData {
         this.views = views;
     }
 
-    public AlbumData getAlbumData() {
-        return albumData;
+    public AlbumData getAlbum() {
+        return album;
     }
 
-    public void setAlbumData(AlbumData albumData) {
-        this.albumData = albumData;
+    public void setAlbum(AlbumData albumData) {
+        this.album = albumData;
     }
 
-    public AuthorData getAuthorData() {
-        return authorData;
+    public AuthorData getAuthor() {
+        return author;
     }
 
-    public void setAuthorData(AuthorData authorData) {
-        this.authorData = authorData;
+    public void setAuthor(AuthorData authorData) {
+        this.author = authorData;
     }
 
     public long getQueuePosition() {

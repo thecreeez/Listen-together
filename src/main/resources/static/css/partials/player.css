@@ -31,8 +31,46 @@
 
 .player--controller {
     margin-top: 5px;
+    display: grid;
+    grid-template-columns: 100px 1fr 150px 1fr 100px;
+}
+
+.player--left {
+    grid-column: 1/2;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-left: 5px;
+}
+
+.player--middle {
+    grid-column: 3/4;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.player--right {
+    grid-column: 5/6;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+
+    margin-right: 5px;
+}
+
+.player--btn {
+    font-size: 1.2em;
 }
 
 .player--play {
     font-size: 1.5em;
+}
+
+.player--current_time {
+    font-size: .9em;
+}
+
+.player--all_time {
+    font-size: .9em;
 }

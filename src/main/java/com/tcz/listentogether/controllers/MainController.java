@@ -40,7 +40,7 @@ public class MainController {
         if (!token.equals("null")) {
             Optional<User> userOptional = userRepository.findByToken(token);
 
-            if (userOptional != null) {
+            if (!userOptional.isEmpty()) {
                 data.put("username", userOptional.get().getName());
                 data.put("isAuth", "true");
 

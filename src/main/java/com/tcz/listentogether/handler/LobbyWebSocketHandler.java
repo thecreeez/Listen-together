@@ -286,7 +286,12 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
             }
             case "skipsong": {
                 lobbyAudioController.skipSong();
-                sendToLobby(lobby.getId(), "player//skipSong");
+                sendToLobby(lobby.getId(), "player//songUpdated//"+lobby.getCurrentSong().getId());
+                break;
+            }
+            case "prevsong": {
+                lobbyAudioController.backwardSong();
+                sendToLobby(lobby.getId(), "player//songUpdated//"+lobby.getCurrentSong().getId());
                 break;
             }
             case "addSongToList": {
@@ -306,14 +311,25 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                 break;
             }
             case "movetime": {
-
                 System.out.println(args[2]);
                 try {
-                    long newDuration = Long.valueOf(args[2]);
+                    long newTime = Long.valueOf(args[2]);
 
-                    lobbyAudioController.moveTimeLine(newDuration);
+                    lobbyAudioController.moveTimeLine(newTime);
                 } catch(NumberFormatException e) {
-                    System.out.println("Неверно введена команда перелистывания песни. длительность не указана в формате числа.");
+                    System.out.println("Неверно введена команда установки времени. длительность не указана в формате числа.");
+                }
+                break;
+            }
+            case "setCurrentSongInList": {
+                System.out.println(args[2]);
+                try {
+                    long currentSongId = Long.valueOf(args[2]);
+
+                    lobbyAudioController.setCurrentSongFromQueue(currentSongId);
+                    sendToLobby(lobby.getId(), "player//songUpdated//"+lobby.getCurrentSong().getId());
+                } catch(NumberFormatException e) {
+                    System.out.println("Неверно введена команда установки текущей песни. длительность не указана в формате числа.");
                 }
                 break;
             }
@@ -355,7 +371,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
         return token;
     }
 
-    @Scheduled(fixedRate = 500L)
+    @Scheduled(fixedRate = 500l)
     void updateLobbyTime() {
         Iterable<Lobby> lobbies = lobbyRepository.findAll();
 
@@ -376,6 +392,7 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                         String arg = lobbyAudioController.isQueueEmpty() ? "nextSongEmpty" : "nextSongReady";
 
                         sendToLobby(lobby.getId(), "player//songEnded//"+arg);
+                        sendToLobby(lobby.getId(), "player//songUpdated//"+lobby.getCurrentSong().getId());
                     }
 
                     sendToLobby(lobby.getId(), "player//sync//"+lobby.getTime());

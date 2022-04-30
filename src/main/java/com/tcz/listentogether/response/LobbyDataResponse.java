@@ -13,7 +13,7 @@ public class LobbyDataResponse {
 
     private ArrayList<UserData> users = new ArrayList<>();
     private ArrayList<SongData> songsInQueue = new ArrayList<>();
-    private SongData currentSong;
+    private Long currentSongId;
     private boolean isPlaying;
     private long time = 0;
 
@@ -30,7 +30,7 @@ public class LobbyDataResponse {
         this.isPlaying = lobby.isPlaying();
 
         if (lobby.getCurrentSong() != null)
-            this.currentSong = new SongData(lobby.getCurrentSong());
+            this.currentSongId = lobby.getCurrentSong().getId();
 
         if (lobby.getTime() != null)
             this.time = lobby.getTime();
@@ -68,11 +68,11 @@ public class LobbyDataResponse {
         this.songsInQueue = songsInQueue;
     }
 
-    public SongData getCurrentSong() {
-        return currentSong;
+    public Long getCurrentSongId() {
+        return currentSongId;
     }
 
-    public void setCurrentSong(SongData currentSong) {
-        this.currentSong = currentSong;
+    public void setCurrentSongId(Long currentSongId) {
+        this.currentSongId = currentSongId;
     }
 }

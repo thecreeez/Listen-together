@@ -16,10 +16,8 @@ import javax.el.Expression;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
-/*
-* Я сделал сортировку ефимыч, теперь нужно просто удалять из очереди текущие песни и изменять позиции в очереди при смене текущей песни
-* */
+import java.util.List;
+import java.util.Optional;
 
 public class LobbyAudioController {
 
@@ -54,13 +52,73 @@ public class LobbyAudioController {
             if (lobby.getTime() != null)
                 currTime = lobby.getTime();
 
-            lobby.setTime(currTime+500L);
+            lobby.setTime(currTime+500l);
 
             if (lobby.getTime() >= lobby.getMaxTime())
                 nextSong();
         }
 
         lobbyRepository.save(lobby);
+    }
+
+    public boolean playstop() {
+        if (lobby.getCurrentSong() == null)
+            startCurrentSong();
+
+        if (lobby.getCurrentSong() != null) {
+            System.out.println("Состояние лобби "+lobby.getCode()+" : isPlaying: "+lobby.isPlaying()+" -> "+!lobby.isPlaying());
+
+            lobby.setPlaying(!lobby.isPlaying());
+        }
+
+        lobbyRepository.save(lobby);
+        return lobby.isPlaying();
+    }
+
+    public void startCurrentSong() {
+        if (lobby.getSongsList().size() < 1)
+            return;
+
+        System.out.println("Смена текущей песни на "+lobby.getSongsList().get(0).getSong().getName());
+        lobby.setCurrentSong(getSongsListAsHashMap().get(0l));
+        lobby.setTime(0l);
+        lobby.setMaxTime(getDurationSong(lobby.getCurrentSong().getSong()));
+
+        lobbyRepository.save(lobby);
+    }
+
+    private void setCurrentSongByQueue(long queue) {
+        HashMap<Long, SongInQueue> songsList = getSongsListAsHashMap();
+
+        if (songsList.get(queue) == null)
+            return;
+
+        lobby.setCurrentSong(songsList.get(queue));
+        lobbyRepository.save(lobby);
+    }
+
+    public void setCurrentSongFromQueue(long songInQueueId) {
+        Optional<SongInQueue> songInQueueOptional = songInQueueRepository.findById(songInQueueId);
+
+        if (songInQueueOptional.isEmpty() || songInQueueOptional.get().getLobbyId() != lobby.getId()) {
+            System.out.println("Неверно задана новая песня!");
+            return;
+        }
+
+        System.out.println("Смещение всей очереди на "+(-songInQueueOptional.get().getQueuePosition()));
+        offsetAllQueue(-songInQueueOptional.get().getQueuePosition());
+
+        startCurrentSong();
+    }
+
+    // ОПАСНО!!!
+    private void offsetAllQueue(long offsetSize) {
+        for (int i = 0; i < lobby.getSongsList().size(); i++) {
+            SongInQueue songInQueueToMove = lobby.getSongsList().get(i);
+            songInQueueToMove.setQueuePosition(songInQueueToMove.getQueuePosition() + offsetSize);
+
+            songInQueueRepository.save(songInQueueToMove);
+        }
     }
 
     private void nextSong() {
@@ -85,6 +143,34 @@ public class LobbyAudioController {
                 songInQueueRepository.delete(songInQueue);
             else
                 songInQueueRepository.save(songInQueue);
+
+            if (songInQueue.getQueuePosition() == 0)
+                lobby.setCurrentSong(songInQueue);
+        });
+
+        System.out.println("Смена песни на "+lobby.getCurrentSong().getId());
+
+        lobby.setMaxTime(getDurationSong(lobby.getCurrentSong().getSong()));
+        lobby.setTime(0l);
+
+        lobbyRepository.save(lobby);
+    }
+
+    private void prevSong() {
+        System.out.println("Запущено переключение песни...");
+        isSongEnded = true;
+
+        HashMap<Long, SongInQueue> songInQueueHashMap = getSongsListAsHashMap();
+
+        if (songInQueueHashMap.get(-1l) == null) {
+            System.out.println("Предыдущей песни в очереди нет...");
+            return;
+        }
+
+        System.out.println("Смещение всех песен в позиции на 1...");
+        songInQueueHashMap.forEach((aLong, songInQueue) -> {
+            System.out.println("Песня "+songInQueue.getId()+" смещена: "+songInQueue.getQueuePosition()+" -> "+(songInQueue.getQueuePosition()+1));
+            songInQueue.setQueuePosition(songInQueue.getQueuePosition() + 1);
 
             if (songInQueue.getQueuePosition() == 0)
                 lobby.setCurrentSong(songInQueue);
@@ -127,25 +213,20 @@ public class LobbyAudioController {
         return lobby.getSongsList().get(lobby.getSongsList().size()-1).getQueuePosition()+1;
     }
 
-    public boolean playstop() {
-        if (lobby.getCurrentSong() == null) {
-            nextSong();
-        }
-
-        if (lobby.getCurrentSong() != null) {
-            System.out.println("Состояние лобби "+lobby.getCode()+" : isPlaying: "+lobby.isPlaying()+" -> "+!lobby.isPlaying());
-
-            lobby.setPlaying(!lobby.isPlaying());
-        }
-
-        lobbyRepository.save(lobby);
-        return lobby.isPlaying();
-    }
-
     public void skipSong() {
         System.out.println("В лобби "+lobby.getCode()+" пропущена песня "+lobby.getCurrentSong().getSong().getName());
 
         nextSong();
+    }
+
+    public void backwardSong() {
+        if (lobby.getTime() > 5000) {
+            lobby.setTime(0l);
+            lobbyRepository.save(lobby);
+            return;
+        }
+
+        prevSong();
     }
 
     public void addSongToList(Song song) {

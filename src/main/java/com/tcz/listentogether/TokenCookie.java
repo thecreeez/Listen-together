@@ -8,7 +8,6 @@ public class TokenCookie {
     public TokenCookie(String token) {
         cookie = new Cookie("token", token);
         cookie.setPath("/");
-        cookie.setSecure(true);
         cookie.setMaxAge(7 * 24 * 60 * 60);
     }
 

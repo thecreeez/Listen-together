@@ -8,7 +8,6 @@ public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long albumId;
 
     private int views;
 
@@ -18,14 +17,14 @@ public class Song {
     public Song() {
     }
 
-    public Song(Long albumId, String name, String path) {
-        this.albumId = albumId;
+    public Song(Album album, String name, String path) {
+        this.album = album;
         this.name = name;
         this.path = path;
     }
 
     @OneToOne(targetEntity = Album.class, cascade = CascadeType.ALL)
-    @JoinColumn(name="id", referencedColumnName = "albumId")
+    @JoinColumn(name="album_id")
     private Album album;
 
     public Long getId() {
@@ -34,14 +33,6 @@ public class Song {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getAlbumId() {
-        return albumId;
-    }
-
-    public void setAlbumId(Long albumId) {
-        this.albumId = albumId;
     }
 
     public String getName() {

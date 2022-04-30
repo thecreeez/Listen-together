@@ -5,7 +5,7 @@ const LOBBY_INDEX = {
             <div class="main--users">
                 <h3 class="main--header">Пользователи</h3>
                 <ul class="main--users_list" id="userList">
-                    <li v-for="user in users" class="main--users_list--item" :id="'user//id=' + user.id">
+                    <li v-for="user in users" class="main--users_list--item">
                         <div class="main--users_list--item--username"> {{ user.name }} </div>
     
                         <div class="main--users_list--item--buttons">
@@ -22,16 +22,24 @@ const LOBBY_INDEX = {
             </div>
     
             <div class="main--songs">
-                Список песен в листе
-                <!-- div class="songs--list--wrapper" th:insert="blocks/songs-list :: songs-list"></div>
-                <div class="songs_list--top">
-                    <h3 class="songs_list--top--author">Автор</h3>
-                    <h3 class="songs_list--top--song">Название</h3>
-                    <h3 class="songs_list--top--album">Альбом</h3>
-                    <h3 class="songs_list--top--views">Прослушивания</h3>
-                </div -->
+                <div class="main--songs_list--item">
+                        <div class="songs_list--item--play">#</div>
+                        <div class="songs_list--item--author">Автор</div>
+                        <div class="songs_list--item--name">Название</div>
+                        <div class="songs_list--item--views">Прослуш.</div>
+                        <div class="songs_list--item--album">Альбом</div>
+                </div>
                 <ul class="main--songs_list" id="songList">
-                    
+                    <li v-for="song in songsInQueue" class="main--songs_list--item" :id="'siq=' + song.queueId">
+                        <div v-on:click="playstop" class="songs_list--item--play">
+                            <i v-if="song.queueId == global.vue.currentSongId && global.vue.isPlaying" class="fa-solid fa-pause"></i>
+                            <i v-else class="fa-solid fa-play"></i>
+                        </div>
+                        <div class="songs_list--item--author">{{ song.author.name }}</div>
+                        <div class="songs_list--item--name">{{ song.name }}</div>
+                        <div class="songs_list--item--views">{{ song.views }}</div>
+                        <div class="songs_list--item--album">{{ song.album.name }}</div>
+                    </li>
                 </ul>
             </div>
     
@@ -39,7 +47,7 @@ const LOBBY_INDEX = {
                 <h3 class="main--header">Управление</h3>
                 <div class="controller--item">
                     <div class="controller--lobby_id">
-                            <input id="codeInput" class="controller--lobby_id--input" type="text" placeholder="ID Лобби" :value="this.$route.params.id" maxlength="6" readonly>
+                        <input id="codeInput" class="controller--lobby_id--input" type="text" placeholder="ID Лобби" :value="this.$route.params.id" maxlength="6" readonly>
                     </div>
                     <div class="controller--leave">
                         <i v-on:click="leaveFromLobby()" class="controller--button fa-solid fa-right-from-bracket"></i>
@@ -52,10 +60,12 @@ const LOBBY_INDEX = {
         return {
             users: [],
             songsInQueue: [],
+            global: undefined
         }
     },
 
-    created() {
+    async created() {
+        console.log()
         if (!GLOBAL_DATA.vue.isOnLobby || GLOBAL_DATA.vue.lobbyCode != this.$route.params.id) {
             if (GLOBAL_DATA.isSocketConnected)
                 this.handshakeLobby();
@@ -66,6 +76,9 @@ const LOBBY_INDEX = {
         eventBus.invoke("connectedToLobby", (GLOBAL_DATA.vue.lobbyCode));
         this.fetchData();
 
+        this.global = GLOBAL_DATA;
+
+        GLOBAL_DATA.songsInQueue = this.songsInQueue;
         GLOBAL_DATA.users = this.users;
     },
 
@@ -82,8 +95,14 @@ const LOBBY_INDEX = {
                             this.users.push(user);
                     })
 
-                    GLOBAL_DATA.vue.songInQueueList = dataJSON.songsInQueue;
-                    GLOBAL_DATA.vue.currentSong = dataJSON.currentSong;
+                    dataJSON.songsInQueue.forEach((songInQueue) => {
+                        console.log(songInQueue);
+                        this.songsInQueue.push(songInQueue);
+                    })
+
+                    GLOBAL_DATA.vue.currentSongId = dataJSON.currentSongId;
+
+                    console.log("Getted data: ",dataJSON);
                 })
         },
 
@@ -98,5 +117,17 @@ const LOBBY_INDEX = {
             this.$router.push("/");
         },
 
+        playstop(elem) {
+            const SIQ_ID = elem.path[2].id.split("=")[1];
+            const CURRENT_SONG_ID = GLOBAL_DATA.vue.currentSongId;
+
+            if (!SIQ_ID)
+                return;
+
+            if (CURRENT_SONG_ID == SIQ_ID)
+                return eventBus.invoke("playstopInvoking");
+
+            eventBus.invoke("setSongInvoking", SIQ_ID);
+        }
     }
 }
