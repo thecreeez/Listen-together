@@ -21,11 +21,14 @@ const app = Vue.createApp({
             ping: 0,
             state: STATE.START,
 
+            queueState: QUEUE_STATE.NO_REPEAT,
+
             volume: 0.8,
             isAwaitingSync: false,
 
             isOnLobby: false,
             lobbyCode: null,
+            isSocketConnected: false,
 
             isPlaying: false,
 
@@ -126,7 +129,7 @@ const app = Vue.createApp({
         },
 
         repeat() {
-            socket.send("pcontrol//nextrepeat");
+            socket.send("pcontrol//changeQueueState");
         }
     }
 });

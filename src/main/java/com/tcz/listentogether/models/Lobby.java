@@ -1,5 +1,7 @@
 package com.tcz.listentogether.models;
 
+import com.tcz.listentogether.enums.QueueState;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +15,7 @@ public class Lobby {
     private Long time;
     private Long maxTime;
     private boolean isPlaying;
+    private QueueState queueState = QueueState.NO_REPEAT;
 
     @OneToOne(targetEntity = SongInQueue.class, cascade = CascadeType.ALL)
     @JoinColumn(name="current_song_id")
@@ -92,5 +95,13 @@ public class Lobby {
 
     public void setMaxTime(Long maxTime) {
         this.maxTime = maxTime;
+    }
+
+    public QueueState getQueueState() {
+        return queueState;
+    }
+
+    public void setQueueState(QueueState queueState) {
+        this.queueState = queueState;
     }
 }

@@ -4,7 +4,7 @@ const INDEX_COMPONENT = {
         <div class="main--index">
             <div class="main--index--lobby">
                 <input class="lobby--input" placeholder="ID Лобби" type="text" maxlength="6" id="lobbyCode">
-                <button v-on:click="connectToLobby()" class="lobby--btn">GO</button>
+                <button v-on:click="connectToLobby()" class="lobby--btn clickable">GO</button>
             </div>
     
             <div class="main--info">

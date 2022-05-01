@@ -8,7 +8,7 @@ const UPLOAD_COMPONENT = {
                 <input type="text" name="album" placeholder="Название альбома" class="upload--input">
                 <input type="text" name="name" placeholder="Название песни" class="upload--input">
                 <input type="file" name="file" class="upload--input">
-                <button type="submit" class="upload--button">Отправить</button>
+                <button type="submit" class="upload--button clickable">Отправить</button>
             </form>
         </div>
         `,

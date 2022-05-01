@@ -1,5 +1,7 @@
 package com.tcz.listentogether;
 
+import com.tcz.listentogether.enums.QueueState;
+import com.tcz.listentogether.enums.UserState;
 import com.tcz.listentogether.models.Lobby;
 import com.tcz.listentogether.models.Song;
 import com.tcz.listentogether.models.SongInQueue;
@@ -16,7 +18,6 @@ import javax.el.Expression;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 public class LobbyAudioController {
@@ -75,6 +76,22 @@ public class LobbyAudioController {
         return lobby.isPlaying();
     }
 
+    public QueueState changeQueueState() {
+        int currentQueuePos = lobby.getQueueState().ordinal();
+
+        QueueState[] states = QueueState.values();
+
+        if (currentQueuePos >= states.length - 1)
+            currentQueuePos = 0;
+        else
+            currentQueuePos++;
+
+        lobby.setQueueState(states[currentQueuePos]);
+        lobbyRepository.save(lobby);
+
+        return states[currentQueuePos];
+    }
+
     public void startCurrentSong() {
         if (lobby.getSongsList().size() < 1)
             return;
@@ -127,10 +144,26 @@ public class LobbyAudioController {
 
         HashMap<Long, SongInQueue> songInQueueHashMap = getSongsListAsHashMap();
 
+        if (lobby.getQueueState() == QueueState.REPEAT_ONE) {
+            startCurrentSong();
+            return;
+        }
+
         if (songInQueueHashMap.get(1l) == null) {
-            lobby.setPlaying(false);
-            this.isQueueEmpty = true;
-            System.out.println("Следующей песни в очереди нет...");
+            switch (lobby.getQueueState()) {
+                case NO_REPEAT: {
+                    lobby.setPlaying(false);
+                    this.isQueueEmpty = true;
+                    System.out.println("Следующей песни в очереди нет...");
+                    break;
+                }
+                case REPEAT_ALL: {
+                    offsetAllQueue(-lobby.getSongsList().get(0).getQueuePosition());
+                    startCurrentSong();
+                    break;
+                }
+            }
+            lobbyRepository.save(lobby);
             return;
         }
 

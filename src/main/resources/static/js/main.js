@@ -5,6 +5,12 @@ const STATE = {
     START: "start"
 }
 
+const QUEUE_STATE = {
+    NO_REPEAT: "NO_REPEAT",
+    REPEAT_ALL: "REPEAT_ALL",
+    REPEAT_ONE: "REPEAT_ONE"
+}
+
 
 const eventBus = {
     data: {},
@@ -43,7 +49,7 @@ socket.onclose = (ev) => eventBus.invoke("socketClose", {event: ev});
  * SOCKETS
  */
 
-eventBus.subscribe("socketOpen", () => GLOBAL_DATA.isSocketConnected = true);
+eventBus.subscribe("socketOpen", () => GLOBAL_DATA.vue.isSocketConnected = true);
 
 eventBus.subscribe("socketMessage", (data) => {
     const args = data.event.data.split("//");
@@ -67,6 +73,8 @@ eventBus.subscribe("socketMessage", (data) => {
 })
 
 eventBus.subscribe("socketClose", () => {
+    GLOBAL_DATA.vue.isSocketConnected = false;
+    GLOBAL_DATA.vue.audio.pause();
     alert("Потеряно соединение с сервером...")
     location.reload();
 })

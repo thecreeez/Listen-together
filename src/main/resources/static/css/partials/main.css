@@ -46,3 +46,8 @@ ul {
 input:focus{
     outline:none;
 }
+
+.clickable:hover {
+    cursor: pointer;
+    text-shadow: 0 0px 7px #ffffff;
+}

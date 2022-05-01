@@ -39,6 +39,28 @@ eventBus.subscribe("playerControl", (args) => {
             GLOBAL_DATA.vue.currentSongId = args[2];
             break;
         }
+        case "changeQueueState": {
+            GLOBAL_DATA.vue.queueState = QUEUE_STATE[args[2]];
+            break;
+        }
+        case "songListUpdated": {
+            fetch("/get/lobbyData")
+                .then((response) => {
+                    return response.text()
+                }).then((data) => {
+                    const dataJSON = JSON.parse(data);
+
+                    GLOBAL_DATA.songsInQueue.length = 0;
+
+                    dataJSON.songsInQueue.forEach((songInQueue) => {
+                        console.log(songInQueue);
+                        GLOBAL_DATA.songsInQueue.push(songInQueue);
+                    })
+                })
+        }
+        default: {
+            console.log(args);
+        }
     }
 })
 

@@ -15,7 +15,7 @@ const LOBBY_INDEX = {
                                 <i v-if="user.state == 'DISCONNECTED'" class="fa-solid fa-person-walking-arrow-right main--users_list--item--buttons--item"></i>
                                 <i v-if="!user.state" class="fa-solid fa-person-walking-arrow-right main--users_list--item--buttons--item"></i>
                             </div>
-                            <div v-on:click="kick(elem)" class="users_list--item--kickbutton"><i class="fa-solid fa-door-open"></i></div>
+                            <div v-on:click="kick(elem)" class="users_list--item--kickbutton clickable"><i class="fa-solid fa-door-open"></i></div>
                         </div>
                     </li>
                 </ul>
@@ -32,8 +32,8 @@ const LOBBY_INDEX = {
                 <ul class="main--songs_list" id="songList">
                     <li v-for="song in songsInQueue" class="main--songs_list--item" :id="'siq=' + song.queueId">
                         <div v-on:click="playstop" class="songs_list--item--play">
-                            <i v-if="song.queueId == global.vue.currentSongId && global.vue.isPlaying" class="fa-solid fa-pause"></i>
-                            <i v-else class="fa-solid fa-play"></i>
+                            <i v-if="song.queueId == global.vue.currentSongId && global.vue.isPlaying" class="fa-solid fa-pause clickable"></i>
+                            <i v-else class="fa-solid fa-play clickable"></i>
                         </div>
                         <div class="songs_list--item--author">{{ song.author.name }}</div>
                         <div class="songs_list--item--name">{{ song.name }}</div>
@@ -50,7 +50,7 @@ const LOBBY_INDEX = {
                         <input id="codeInput" class="controller--lobby_id--input" type="text" placeholder="ID Лобби" :value="this.$route.params.id" maxlength="6" readonly>
                     </div>
                     <div class="controller--leave">
-                        <i v-on:click="leaveFromLobby()" class="controller--button fa-solid fa-right-from-bracket"></i>
+                        <i v-on:click="leaveFromLobby()" class="controller--button fa-solid fa-right-from-bracket clickable"></i>
                     </div>
                 </div>
             </div>

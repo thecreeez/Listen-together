@@ -300,10 +300,12 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
 
                     Optional<Song> song = songRepository.findById(songId);
 
-                    if (!song.isEmpty())
+                    if (!song.isEmpty()) {
                         lobbyAudioController.addSongToList(song.get());
-                    else
+                        sendToLobby(lobby.getId(), "player//songListUpdated");
+                    } else {
                         System.out.println("Попытка добавить несуществующую песню...");
+                    }
                 } catch(NumberFormatException e) {
                     System.out.println("Неверно введена команда добавления песни. id не указан в формате числа.");
                 }
@@ -332,6 +334,10 @@ public class LobbyWebSocketHandler extends TextWebSocketHandler {
                     System.out.println("Неверно введена команда установки текущей песни. длительность не указана в формате числа.");
                 }
                 break;
+            }
+            case "changeQueueState": {
+                lobbyAudioController.changeQueueState();
+                sendToLobby(lobby.getId(), "player//changeQueueState//"+lobby.getQueueState());
             }
         }
     }

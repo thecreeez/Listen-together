@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
     <title>Listen Together</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10,14 +10,11 @@
 <div class="wrapper" id="app">
     <header class="header">
         <link rel="stylesheet" type="text/css" href="/css/partials/header.css">
-        <router-link to="/" class="header--logo unselectable">
+        <router-link to="/" class="header--logo unselectable clickable">
             Listen Together
         </router-link>
         <div class="header--menu unselectable">
             <ul class="header--menu--content">
-                <li v-if="isOnLobby" class="header--menu--option option--lobby">
-                    <router-link :to="'/lobby/' + lobbyCode"><i class="fa-solid fa-people-roof"></i></router-link>
-                </li>
                 <li class="header--menu--option option--upload">
                     <router-link to="/upload"><i class="fa-solid fa-upload"></i></router-link>
                 </li>
@@ -53,10 +50,11 @@
         </ul>
     </footer>
 
-    <div class="player">
+    <div v-bind:class="{ player_on: isSocketConnected }" class="player">
         <div class="player--wrapper">
             <div v-on:click="moveDuration" class="player--duration--slider">
                 <div v-bind:style=" { width: durationSliderWidth } "class="player--duration--slider--done"></div>
+                <div v-bind:style=" { width: durationSliderWidth } "class="player--duration--slider--"></div>
             </div>
 
             <div class="player--controller">
@@ -65,16 +63,18 @@
                 </div>
 
                 <div class="player--middle">
-                    <router-link :to="'/lobby/' + lobbyCode"><i class="player--btn fa-solid fa-house-user"></i></router-link>
+                    <router-link :to="'/lobby/' + lobbyCode"><i class="player--btn fa-solid fa-house-user clickable"></i></router-link>
 
-                    <i v-on:click="prevsong()" class="player--btn fa-solid fa-backward"></i>
+                    <i v-on:click="prevsong()" class="player--btn fa-solid fa-backward clickable"></i>
 
-                    <i v-on:click="playstop()" v-if="!isPlaying" class="player--play fa-solid fa-circle-play"></i>
-                    <i v-on:click="playstop()" v-else class="player--play fa fa-circle-pause" aria-hidden="true"></i>
+                    <i v-on:click="playstop()" v-if="!isPlaying" class="player--play fa-solid fa-circle-play clickable"></i>
+                    <i v-on:click="playstop()" v-else class="player--play fa fa-circle-pause clickable" aria-hidden="true"></i>
 
-                    <i v-on:click="skipsong()" class="player--btn fa-solid fa-forward"></i>
+                    <i v-on:click="skipsong()" class="player--btn fa-solid fa-forward clickable"></i>
 
-                    <i v-on:click="repeat()" class="player--btn fa-solid fa-repeat"></i>
+                    <i v-on:click="repeat()" v-if="queueState == 'REPEAT_ALL'"class="fa-solid fa-repeat player--btn clickable"></i>
+                    <i v-on:click="repeat()" v-if="queueState == 'NO_REPEAT'"class="fa-solid fa-repeat repeat-off player--btn clickable"></i>
+                    <i v-on:click="repeat()" v-if="queueState == 'REPEAT_ONE'"class="fa-solid fa-arrow-rotate-right player--btn clickable"></i>
                 </div>
 
                 <div class="player--right">
